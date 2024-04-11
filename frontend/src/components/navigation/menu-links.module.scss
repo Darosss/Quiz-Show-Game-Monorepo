@@ -1,0 +1,37 @@
+.menuLinksList {
+  li {
+    width: 90%;
+    height: 90%;
+    margin: 0.5rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    & > * {
+      max-height: 80%;
+      min-height: 80%;
+    }
+    &.active {
+      background-color: rgb(var(--success-first-rgb));
+    }
+
+    &:not(.active):hover {
+      a {
+        color: rgb(var(--primary-first-rgb));
+      }
+    }
+
+    a,
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 90%;
+      width: 100%;
+    }
+
+    button {
+      font-size: 1em;
+      font-weight: 800;
+    }
+  }
+}

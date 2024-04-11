@@ -1,0 +1,9 @@
+.baseRoomActionsWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  .baseRoomActionsContent {
+    display: flex;
+    justify-content: center;
+  }
+}

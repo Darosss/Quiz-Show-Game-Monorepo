@@ -1,0 +1,54 @@
+@import "@/styles/mixins";
+
+.contentBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-image: var(--primary-glow);
+  filter: brightness(60%);
+}
+
+main.mainWrapper {
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+
+  & > div {
+    width: 100%;
+  }
+}
+
+.userDetailsWrapper {
+  background-image: var(--primary-glow);
+  padding: var(--user-details-padding);
+  filter: brightness(120%);
+  border-bottom: 1px solid #083344;
+}
+
+.contentWrapper {
+  border-radius: 0.5rem;
+  display: flex;
+  position: relative;
+  min-width: 70%;
+  max-width: 70%;
+  max-height: var(--content-height);
+  min-height: var(--content-height);
+  align-items: center;
+  justify-content: center;
+  & > div {
+    min-width: inherit;
+    & > h1 {
+      text-align: center;
+    }
+  }
+  @include respond(large) {
+    min-width: 98%;
+    max-width: 98%;
+    justify-content: center;
+  }
+}

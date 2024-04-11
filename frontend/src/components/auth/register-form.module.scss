@@ -1,0 +1,29 @@
+.form {
+  padding: 0.5rem;
+  border-radius: 1rem;
+  box-shadow: 1px 3px 5px 1px rgb(var(--primary-first-rgb));
+  & > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    input {
+      text-align: center;
+      font-size: 2dvw;
+      background-color: rgb(var(--primary-second-rgb));
+      border: 0;
+      box-shadow: 1px 3px 5px 1px rgb(var(--primary-first-rgb));
+    }
+
+    button[type="submit"] {
+      margin-top: 0.5rem;
+      width: 100%;
+      border-end-start-radius: 0.5rem;
+      border-end-end-radius: 0.5rem;
+    }
+    * {
+      font-size: 2dvw;
+    }
+  }
+}

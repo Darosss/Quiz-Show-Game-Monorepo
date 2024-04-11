@@ -1,0 +1,55 @@
+.button {
+  border: 0;
+  padding: 5px;
+  border-radius: 0.25rem;
+  cursor: pointer;
+
+  &:hover {
+    filter: hue-rotate(20deg);
+  }
+
+  &.primary {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--primary-first-rgb)),
+      rgb(var(--primary-second-rgb))
+    );
+    color: #ffffff;
+  }
+
+  &.secondary {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--secondary-first-rgb)),
+      rgb(var(--secondary-second-rgb))
+    );
+    color: #ffffff;
+  }
+
+  &.danger {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--danger-first-rgb)),
+      rgb(var(--danger-second-rgb))
+    );
+    color: #ffffff;
+  }
+
+  &.info {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--info-first-rgb)),
+      rgb(var(--info-second-rgb))
+    );
+    color: #ffffff;
+  }
+
+  &.success {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--success-first-rgb)),
+      rgb(var(--success-second-rgb))
+    );
+    color: #ffffff;
+  }
+}

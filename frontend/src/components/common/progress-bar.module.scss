@@ -1,0 +1,9 @@
+.progressBarWrapper {
+  span {
+    margin-right: 1rem;
+  }
+
+  &:hover {
+    filter: brightness(120%);
+  }
+}

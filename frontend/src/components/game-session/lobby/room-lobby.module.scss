@@ -1,0 +1,32 @@
+.roomLobbyWrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .leaveRoomButton {
+    position: absolute;
+    right: 0;
+  }
+  .lobbyPlayers {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    padding: 0.5rem;
+
+    & > div.player {
+      font-weight: 800;
+      margin: 0.2rem;
+      min-width: 25%;
+      max-width: 35%;
+      width: 100%;
+      padding: 0.5rem;
+      background-color: rgb(var(--secondary-first-rgb));
+      display: flex;
+      justify-content: space-around;
+
+      span {
+        color: rgb(var(--success-second-rgb));
+      }
+    }
+  }
+}

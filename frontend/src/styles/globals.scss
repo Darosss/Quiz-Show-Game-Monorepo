@@ -1,0 +1,148 @@
+@import "@/styles/mixins";
+
+:root {
+  // TODO: add colors for light? (now they are the same like dark)
+  /* **** COLORS **** */
+  --primary-first-rgb: 3, 105, 161;
+  --primary-second-rgb: 8, 47, 73;
+
+  --secondary-first-rgb: 100, 116, 139;
+  --secondary-second-rgb: 31, 41, 55;
+
+  --danger-first-rgb: 185, 28, 28;
+  --danger-second-rgb: 69, 10, 10;
+
+  --info-first-rgb: 234, 88, 12;
+  --info-second-rgb: 69, 26, 3;
+
+  --success-first-rgb: 5, 150, 105;
+  --success-second-rgb: 4, 47, 46;
+
+  --foreground-rgb: 255, 255, 255;
+
+  --primary-first-gradient: #083344;
+  --primary-second-gradient: #082f49;
+  /* **** COLORS **** */
+
+  --navbar-height: 10dvh;
+  --user-details-padding: 1dvh;
+  --content-height: calc(
+    100dvh - var(--navbar-height) - 3dvh - var(--user-details-padding)
+  );
+  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
+    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
+    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+  --foreground-rgb: 0, 0, 0;
+
+  --primary-glow: radial-gradient(
+      ellipse at top,
+      var(--primary-first-gradient),
+      transparent
+    ),
+    radial-gradient(
+      ellipse at bottom,
+      var(--primary-second-gradient),
+      transparent
+    );
+
+  --details-glow: radial-gradient(
+    circle,
+    rgba(var(--info-first-rgb), 0.79) 0%,
+    rgba(var(--info-first-rgb), 0.57) 34%,
+    rgba(var(--info-second-rgb), 0.98) 100%
+  );
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* **** COLORS **** */
+    --primary-first-rgb: 3, 105, 161;
+    --primary-second-rgb: 8, 47, 73;
+
+    --secondary-first-rgb: 100, 116, 139;
+    --secondary-second-rgb: 31, 41, 55;
+
+    --danger-first-rgb: 185, 28, 28;
+    --danger-second-rgb: 69, 10, 10;
+
+    --info-first-rgb: 194, 65, 12;
+    --info-second-rgb: 234, 88, 12;
+    --success-first-rgb: 5, 150, 105;
+    --success-second-rgb: 4, 47, 46;
+
+    --foreground-rgb: 255, 255, 255;
+
+    --primary-first-gradient: #083344;
+    --primary-second-gradient: #082f49;
+
+    --primary-glow: radial-gradient(
+        ellipse at top,
+        var(--primary-first-gradient),
+        transparent
+      ),
+      radial-gradient(
+        ellipse at bottom,
+        var(--primary-second-gradient),
+        transparent
+      );
+
+    --details-glow: radial-gradient(
+      circle,
+      rgba(var(--info-first-rgb), 0.4) 0%,
+      rgba(var(--info-first-rgb), 0.57) 34%,
+      rgba(var(--info-second-rgb), 0.98) 100%
+    );
+    /* **** COLORS **** */
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+body {
+  position: relative;
+  max-width: 100vw;
+  min-height: 100dvh;
+  color: rgb(var(--foreground-rgb));
+}
+
+body > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  @include respond(large) {
+    width: 0.5dvw;
+  }
+  width: 0.4dvw;
+}
+
+::-webkit-scrollbar-thumb {
+  background-image: var(--details-glow);
+  border-radius: 0.2rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-image: var(--primary-glow);
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}

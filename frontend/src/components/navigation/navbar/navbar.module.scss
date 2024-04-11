@@ -1,0 +1,42 @@
+@import "@/styles/mixins";
+
+.wrapper {
+  width: 100%;
+  height: var(--navbar-height);
+  position: sticky;
+  top: 0;
+  background-image: var(--primary-glow);
+
+  .hamburgerMenu {
+    display: inline-flex;
+    align-items: center;
+    visibility: hidden;
+    border: 0;
+
+    @include respond(small) {
+      visibility: visible;
+    }
+
+    &:hover {
+      filter: hue-rotate(180deg);
+    }
+  }
+  & > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 3vmin;
+
+    ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      list-style: none;
+      visibility: visible;
+      @include respond(small) {
+        visibility: hidden;
+      }
+    }
+  }
+}
