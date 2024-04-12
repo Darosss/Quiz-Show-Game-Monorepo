@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import {
   ApiResponseBody,
   FetchBackendApiParams,
@@ -10,6 +16,7 @@ import {
 
 export type ApiResponse<ResponseT> = {
   responseData: ApiResponseBody<ResponseT>;
+  setResponseData: Dispatch<SetStateAction<ApiResponseBody<ResponseT>>>;
   isPending: boolean | null;
   error: string | null;
 };
@@ -21,6 +28,7 @@ type FetchDataParams<BodyType = unknown> = {
 
 export type UseFetchReturnType<ResponseT, BodyT> = {
   api: ApiResponse<ResponseT>;
+
   fetchData: (
     params?: FetchDataParams<BodyT>
   ) => Promise<ApiResponseBody<ResponseT> | null>;
@@ -84,5 +92,9 @@ export const useFetch = <ResponseT, BodyT = unknown>(
     if (!manual) fetchData();
   }, [fetchData, manual]);
 
-  return { api: { responseData, isPending, error }, fetchData, clearCache };
+  return {
+    api: { responseData, setResponseData, isPending, error },
+    fetchData,
+    clearCache,
+  };
 };

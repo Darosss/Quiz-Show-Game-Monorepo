@@ -1,20 +1,17 @@
 import {
+  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 //TODO: make paths aliases
 import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../../../shared/socket-events-types';
-import { User } from 'src/users';
 
 const SocketEventsSubscribeMessage = SubscribeMessage<
   keyof ClientToServerEvents
@@ -29,16 +26,18 @@ export class EventsGateway {
   server: Server<ClientToServerEvents, ServerToClientEvents>;
 
   @SocketEventsSubscribeMessage('joinRoom')
-  onJoinRoom(@MessageBody() data: unknown): Promise<void> {
-    return;
+  onJoinRoom(
+    @MessageBody() code,
+    @ConnectedSocket() client: Socket,
+  ): Promise<void> | void {
+    return client.join(code);
   }
 
   @SocketEventsSubscribeMessage('leaveRoom')
-  async onLeaveRoom(@MessageBody() data: number): Promise<number> {
-    return data;
-  }
-
-  emitJoinUser(user: User) {
-    return this.server.emit('userJoinedRoom', user);
+  async onLeaveRoom(
+    @MessageBody() code,
+    @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    return client.leave(code);
   }
 }

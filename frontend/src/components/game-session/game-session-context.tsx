@@ -2,6 +2,7 @@
 
 import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
 import { FC, createContext, useContext } from "react";
+import { RoomLobbyContextProvider } from "./lobby/room-lobby-context";
 
 export type CurrentActionUser = "IDLE" | "IN_ROOM" | "PLAYING";
 type GameSessionContextProviderProps = {
@@ -27,7 +28,7 @@ export const GameSessionContextProvider: FC<
   });
   return (
     <GameSessionContext.Provider value={{ currentGameApi }}>
-      {children}
+      <RoomLobbyContextProvider>{children}</RoomLobbyContextProvider>
     </GameSessionContext.Provider>
   );
 };

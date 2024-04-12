@@ -1,7 +1,7 @@
 import { Room, User } from "./types";
 export type ServerToClientEvents = {
   userJoinedRoom: (user: User) => void;
-  userLeftRoom: (userId: string, username: string) => void;
+  userLeftRoom: (user: User) => void;
 };
 
 export type ClientToServerEvents = {

@@ -9,18 +9,19 @@ import {
   Request,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { OnlyIDParamDTO } from 'src/mongo';
+import { OnlyIDParamDTO, compareTwoIds } from 'src/mongo';
 import { RolesAdminSuperAdminGuard } from 'src/auth';
-import { User, UsersService } from 'src/users';
+import { UsersService } from 'src/users';
 import { ControllerResponseReturn } from 'src/types';
-import { Room } from './schemas/room.schema';
 import { randomUUID } from 'crypto';
 import { ManageUserInRoom } from './enums';
 import { EventsGateway } from 'src/events/events.gateway';
+import { Room, User } from 'src/shared';
 
 @Controller('rooms')
 export class RoomsController {
@@ -99,7 +100,7 @@ export class RoomsController {
       ManageUserInRoom.ADD,
     );
 
-    this.eventsGateway.emitJoinUser(user);
+    this.eventsGateway.server.to(code).emit('userJoinedRoom', user);
 
     return { data: foundRoom, message: 'Successfully joined room' };
   }
@@ -117,12 +118,29 @@ export class RoomsController {
       _id: user.currentRoom._id,
     });
 
-    await this.usersService.removeUserCurrentRoom(user._id.toString());
+    if (
+      compareTwoIds(foundRoom.owner._id, user._id) &&
+      foundRoom.players.length > 1
+    ) {
+      await this.roomsService.changeRoomsOwner(
+        foundRoom._id,
+        foundRoom.players.find(
+          (player) => !compareTwoIds(player._id, foundRoom.owner._id),
+        ),
+      );
+    }
+    if (foundRoom.players.length <= 1) {
+      await this.roomsService.remove(foundRoom._id);
+    }
     await this.roomsService.manageUserInRoom(
-      String(foundRoom._id),
-      String(user._id),
+      foundRoom._id,
+      user._id,
       ManageUserInRoom.REMOVE,
     );
+
+    await this.usersService.removeUserCurrentRoom(user._id.toString());
+
+    this.eventsGateway.server.to(foundRoom.code).emit('userLeftRoom', user);
 
     return { data: true, message: 'Successfully left the room' };
   }

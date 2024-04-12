@@ -1,15 +1,11 @@
-import { FC, useEffect, useMemo } from "react";
-import { useFetch } from "@/hooks/useFetch";
+import { FC, useMemo } from "react";
 import { FetchingInfo } from "@/components/common";
 import styles from "./room-lobby.module.scss";
 import { useAuthContext } from "@/components/auth";
 import { ParticipantRoomActions } from "./participant-room-actions";
 import { OwnerRoomActions } from "./owner-room-actions";
 import { OwnerUserActions } from "./owner-user-actions";
-import { useSocketEventsContext } from "@/socket/index";
-import { toast } from "react-toastify";
-import { Room, User } from "@/shared/index";
-type CurrentRoomResponseType = Room<User>;
+import { useRoomLobbyContext } from "./room-lobby-context";
 
 export const RoomLobby: FC = () => {
   const {
@@ -17,42 +13,17 @@ export const RoomLobby: FC = () => {
       api: { data: userData },
     },
   } = useAuthContext();
+
   const {
-    api: {
-      responseData: { data },
-      isPending,
-      error,
+    currentRoomApi: {
+      api: {
+        responseData: { data },
+        isPending,
+        error,
+      },
     },
-  } = useFetch<CurrentRoomResponseType>({
-    url: "rooms/current-room",
-    method: "GET",
-  });
+  } = useRoomLobbyContext();
 
-  const {
-    events: { userJoinedRoom, userLeftRoom },
-  } = useSocketEventsContext();
-
-  useEffect(() => {
-    userJoinedRoom.on((user) => {
-      if (!data) return;
-
-      toast.info(`${user.username} joined the room`);
-    });
-    return () => {
-      userJoinedRoom.off();
-    };
-  }, [userJoinedRoom, data]);
-
-  useEffect(() => {
-    userLeftRoom.on((userId, username) => {
-      //TODO: remove it form data.
-      toast.info(`${username} left the room`);
-    });
-
-    return () => {
-      userLeftRoom.off();
-    };
-  }, [userLeftRoom]);
   const isOwner = userData.sub === data?.owner._id;
 
   const playersList = useMemo(() => {
@@ -77,6 +48,7 @@ export const RoomLobby: FC = () => {
   return (
     <div className={styles.roomLobbyWrapper}>
       <h2>Room lobby {data.name}</h2>
+      <div>Code: {data.code}</div>
       {isOwner ? <OwnerRoomActions /> : null}
       <div className={styles.leaveRoomButton}>
         <ParticipantRoomActions />

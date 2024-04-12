@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './schemas/user.schema';
 import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { hashString } from 'src/auth/auth.helpers';
-import { Room } from 'src/rooms/schemas/room.schema';
+import { Room, User } from 'src/shared';
 import { CurrentActionUser } from 'src/shared';
+import { User as UserSchema } from './schemas/user.schema';
 
 type FilterQueryUserType = FilterQuery<User>;
 type ProjectionUserType = ProjectionType<User>;
@@ -15,7 +15,7 @@ type PopulateUserType = QueryOptionsUserType['populate'];
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name)
+    @InjectModel(UserSchema.name)
     private userModel: Model<User>,
   ) {}
   async create({ password, ...rest }: CreateUserDto) {

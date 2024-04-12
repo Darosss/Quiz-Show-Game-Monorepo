@@ -2,7 +2,8 @@ import { CurrentActionUser, RolesUser } from "./enums";
 
 type CommonFieldTypes = {
   _id: string;
-  //TODO: createdAt updatedAt and others?
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type User = CommonFieldTypes & {
@@ -13,10 +14,10 @@ export type User = CommonFieldTypes & {
   currentRoom?: Room;
 };
 
-export type Room<Owner = string | User> = CommonFieldTypes & {
+export type Room = CommonFieldTypes & {
   name: string;
   code: string;
-  owner: Owner;
+  owner: User;
   players: User[];
 };
 

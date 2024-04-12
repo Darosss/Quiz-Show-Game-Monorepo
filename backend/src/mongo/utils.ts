@@ -17,3 +17,10 @@ export const SafeMongoIdTransform = ({ value }) => {
     throw new BadRequestException(ID_VALIDATION_ERROR_MESSAGE);
   }
 };
+
+//TODO: when I convert Schemas to _id:string instead ObjectIds
+// something went wrong and node cant compare them even if they are equal
+// in that case i need to retype it to String
+export const compareTwoIds = (id: string, id2: string) => {
+  return String(id) === String(id2);
+};
