@@ -4,7 +4,7 @@ import { FilterQuery, Model, ProjectionType, UpdateQuery } from 'mongoose';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { ManageUserInRoom } from './enums';
-import { Room, User } from 'src/shared';
+import { ManagePlayerReadiness, Room, User } from 'src/shared';
 import { Room as RoomSchema } from './schemas/room.schema';
 type FilterAnswerType = FilterQuery<Room>;
 type ProjectonType = ProjectionType<Room>;
@@ -91,5 +91,30 @@ export class RoomsService {
     return await this.roomModel.findByIdAndUpdate(roomId, {
       owner: newOwner,
     });
+  }
+
+  async manageUserReadiness(
+    roomId: string,
+    userId: string,
+    action: ManagePlayerReadiness,
+  ) {
+    try {
+      const update: UpdateQuery<Room> = {};
+      if (action === ManagePlayerReadiness.READY) {
+        update.$push = { playersReadiness: userId };
+      } else if (action === ManagePlayerReadiness.NOT_READY) {
+        update.$pull = { playersReadiness: userId };
+      }
+
+      const room = await this.roomModel.findByIdAndUpdate(roomId, update, {
+        new: true,
+      });
+
+      if (!room) throw new NotFoundException('Room not found');
+
+      return room;
+    } catch (error) {
+      console.error('Error managing user readiness in room:', error);
+    }
   }
 }

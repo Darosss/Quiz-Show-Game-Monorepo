@@ -1,11 +1,12 @@
 import { IsInstance, IsOptional, IsString } from 'class-validator';
-import { User } from 'src/users';
+import { User } from 'src/shared';
+import { User as UserSchema } from 'src/users';
 
 export class CreateRoomDto {
   @IsString()
   name: string;
 
-  @IsInstance(User)
+  @IsInstance(UserSchema)
   owner: User;
 
   @IsString()

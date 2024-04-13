@@ -24,6 +24,10 @@
       display: flex;
       justify-content: space-around;
 
+      &.ready {
+        background-color: rgb(var(--success-first-rgb));
+      }
+
       span {
         color: rgb(var(--success-second-rgb));
       }

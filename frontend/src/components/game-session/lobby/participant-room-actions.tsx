@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { FC } from "react";
 import { useRoomLobbyContext } from "./room-lobby-context";
 import { useSocketEventsContext } from "@/socket/socket-events-context";
+import { ManagePlayerReadiness } from "@/shared/enums";
+import { useAuthContext } from "@/components/auth";
 
 export const ParticipantRoomActions: FC = () => {
   const router = useRouter();
@@ -21,7 +23,7 @@ export const ParticipantRoomActions: FC = () => {
     await fetchBackendApi<boolean>({
       url: "rooms/leave-current-room",
       method: "POST",
-      notification: { pendingText: "Trying to log in. Please wait" },
+      notification: { pendingText: "Trying to leave room. Please wait" },
     }).then((response) => {
       const data = response?.data;
       if (data) {
@@ -31,14 +33,72 @@ export const ParticipantRoomActions: FC = () => {
       }
     });
   };
+
   return (
     <div>
       <Button onClick={fetchLeaveRoom} defaultButtonType="danger">
         Leave room
       </Button>
-      <Button onClick={() => {}} defaultButtonType="info">
-        Ready
-      </Button>
+      <ReadyButton />
     </div>
+  );
+};
+
+const ReadyButton: FC = () => {
+  const {
+    currentRoomApi: {
+      api: { responseData, setResponseData },
+    },
+  } = useRoomLobbyContext();
+
+  const {
+    apiUser: {
+      api: { data },
+    },
+  } = useAuthContext();
+  const ready = !!responseData.data?.playersReadiness.find(
+    (id) => id === data.sub
+  );
+
+  const fetchSetReady = async (action: ManagePlayerReadiness) => {
+    await fetchBackendApi<string>({
+      url: `rooms/set-ready/${action}`,
+      method: "POST",
+      notification: { pendingText: `Trying to be ${action} in. Please wait` },
+    }).then((response) => {
+      const data = response?.data;
+
+      if (data)
+        setResponseData((prevState) => {
+          if (!prevState.data) return prevState;
+
+          const newPlayersReadiness = ready
+            ? prevState.data.playersReadiness.filter((id) => id !== data)
+            : [...prevState.data.playersReadiness, data];
+
+          const newState = {
+            ...prevState,
+            data: {
+              ...prevState.data,
+              playersReadiness: newPlayersReadiness,
+            },
+          };
+
+          return newState;
+        });
+    });
+  };
+
+  return (
+    <Button
+      onClick={() => {
+        fetchSetReady(
+          ready ? ManagePlayerReadiness.NOT_READY : ManagePlayerReadiness.READY
+        );
+      }}
+      defaultButtonType="secondary"
+    >
+      {ready ? "You are ready" : "Not ready"}
+    </Button>
   );
 };

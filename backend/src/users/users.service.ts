@@ -10,8 +10,6 @@ import { User as UserSchema } from './schemas/user.schema';
 
 type FilterQueryUserType = FilterQuery<User>;
 type ProjectionUserType = ProjectionType<User>;
-type QueryOptionsUserType = QueryOptions<User>;
-type PopulateUserType = QueryOptionsUserType['populate'];
 @Injectable()
 export class UsersService {
   constructor(
@@ -37,10 +35,17 @@ export class UsersService {
   async findOne(
     filter: FilterQueryUserType,
     projection: ProjectionUserType = { password: false },
-    populate?: PopulateUserType,
   ): Promise<User> {
     const foundUser = await this.userModel
-      .findOne(filter, projection, { populate })
+      .findOne(filter, projection, {
+        populate: {
+          path: 'currentRoom',
+          populate: [
+            { path: 'players', select: { password: 0 } },
+            { path: 'owner', select: { password: 0 } },
+          ],
+        },
+      })
       .exec();
     if (!foundUser)
       throw new NotFoundException({

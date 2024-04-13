@@ -18,5 +18,11 @@ export const getSocketEventsFunctions = (
       on: (cb) => socketConnection.on("userLeftRoom", (userId) => cb(userId)),
       off: () => socketConnection.off("userLeftRoom"),
     },
+
+    userSetReady: {
+      on: (cb) =>
+        socketConnection.on("userSetReady", (user, action) => cb(user, action)),
+      off: () => socketConnection.off("userSetReady"),
+    },
   };
 };

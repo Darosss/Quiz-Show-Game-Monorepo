@@ -19,6 +19,7 @@ export type Room = CommonFieldTypes & {
   code: string;
   owner: User;
   players: User[];
+  playersReadiness: string[];
 };
 
 export type UserTokenInfo = {

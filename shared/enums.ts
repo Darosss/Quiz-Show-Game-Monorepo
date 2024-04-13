@@ -9,3 +9,8 @@ export enum RolesUser {
   Admin = "admin",
   SuperAdmin = "super_admin",
 }
+
+export enum ManagePlayerReadiness {
+  READY = "READY",
+  NOT_READY = "NOT READY",
+}

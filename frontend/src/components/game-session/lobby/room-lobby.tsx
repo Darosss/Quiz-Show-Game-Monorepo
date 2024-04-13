@@ -32,7 +32,14 @@ export const RoomLobby: FC = () => {
     return data.players.map((player) => {
       const roomOwnerPlayer = player._id === data.owner._id;
       return (
-        <div key={player._id} className={styles.player}>
+        <div
+          key={player._id}
+          className={`${styles.player} ${
+            data.playersReadiness.find((id) => player._id === id)
+              ? styles.ready
+              : ""
+          }`}
+        >
           <div>
             {player.username}
             {roomOwnerPlayer ? <span>{"  "} - owner</span> : null}

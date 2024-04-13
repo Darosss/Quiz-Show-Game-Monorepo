@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { FC, createContext, useContext, useEffect, useState } from "react";
 import { ApiDataNotNullable, COOKIE_TOKEN_NAME } from "@/api/fetch";
 import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
-import { UserTokenInfo } from "@/api/types";
+import { UserTokenInfo } from "@/shared/index";
 
 type ProfileResponseType = UserTokenInfo;
 type ApiUser = ApiDataNotNullable<ProfileResponseType>;

@@ -12,6 +12,9 @@ export class Room {
   players: User[];
 
   @Prop()
+  playersReadiness: string[];
+
+  @Prop()
   name: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })

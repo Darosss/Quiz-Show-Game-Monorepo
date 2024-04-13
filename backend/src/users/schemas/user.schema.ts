@@ -1,7 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
-import { Room } from 'src/rooms/schemas/room.schema';
-import { RolesUser, CurrentActionUser, User as UserType } from 'src/shared';
+import {
+  RolesUser,
+  CurrentActionUser,
+  User as UserType,
+  Room,
+} from 'src/shared';
 
 export type QuizCategoryDocument = HydratedDocument<User>;
 

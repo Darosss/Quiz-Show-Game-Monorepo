@@ -1,9 +1,10 @@
 import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
-import { Room, User } from "@/shared/types";
+import { ManagePlayerReadiness } from "@/shared/enums";
+import { Room } from "@/shared/types";
 import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, createContext, useContext, useEffect } from "react";
 import { toast } from "react-toastify";
-export type CurrentRoomResponseType = Room<User>;
+export type CurrentRoomResponseType = Room;
 type RoomLobbyContextType = {
   currentRoomApi: UseFetchReturnType<CurrentRoomResponseType, unknown>;
 };
@@ -29,7 +30,7 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
 
   const {
     emits: { joinRoom },
-    events: { userJoinedRoom, userLeftRoom },
+    events: { userJoinedRoom, userLeftRoom, userSetReady },
   } = useSocketEventsContext();
 
   useEffect(() => {
@@ -82,6 +83,30 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
       userLeftRoom.off();
     };
   }, [setResponseData, userLeftRoom]);
+  useEffect(() => {
+    userSetReady.on((user, action) => {
+      setResponseData((prevState) => {
+        if (!prevState.data) return prevState;
+        const newPlayersReadiness =
+          action === ManagePlayerReadiness.READY
+            ? [...prevState.data.playersReadiness, user._id]
+            : prevState.data.playersReadiness.filter((id) => id !== user._id);
+
+        const newState = {
+          ...prevState,
+          data: {
+            ...prevState.data,
+            playersReadiness: newPlayersReadiness,
+          },
+        };
+        return newState;
+      });
+    });
+
+    return () => {
+      userSetReady.off();
+    };
+  }, [setResponseData, userSetReady]);
 
   return (
     <RoomLobbyContext.Provider value={{ currentRoomApi }}>
