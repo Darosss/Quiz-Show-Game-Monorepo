@@ -20,7 +20,12 @@ import { ControllerResponseReturn } from 'src/types';
 import { randomUUID } from 'crypto';
 import { ManageUserInRoom } from './enums';
 import { EventsGateway } from 'src/events/events.gateway';
-import { Room, User, ManagePlayerReadiness } from 'src/shared';
+import {
+  Room,
+  User,
+  ManagePlayerReadiness,
+  ManagePlayersInRoom,
+} from 'src/shared';
 
 @Controller('rooms')
 export class RoomsController {
@@ -82,13 +87,17 @@ export class RoomsController {
       user._id.toString(),
       foundRoom,
     );
-    await this.roomsService.manageUserInRoom(
+    const updatedRoom = await this.roomsService.manageUserInRoom(
       String(foundRoom._id),
       String(user._id),
       ManageUserInRoom.ADD,
     );
 
-    this.eventsGateway.server.to(code).emit('userJoinedRoom', user);
+    this.eventsGateway.server.to(code).emit('userJoinLeave', {
+      user,
+      action: ManagePlayersInRoom.JOIN,
+      updatedRoomData: updatedRoom,
+    });
 
     return { data: foundRoom, message: 'Successfully joined room' };
   }
@@ -120,7 +129,7 @@ export class RoomsController {
     if (foundRoom.players.length <= 1) {
       await this.roomsService.remove(foundRoom._id);
     }
-    await this.roomsService.manageUserInRoom(
+    const updatedRoom = await this.roomsService.manageUserInRoom(
       foundRoom._id,
       user._id,
       ManageUserInRoom.REMOVE,
@@ -128,7 +137,11 @@ export class RoomsController {
 
     await this.usersService.removeUserCurrentRoom(user._id.toString());
 
-    this.eventsGateway.server.to(foundRoom.code).emit('userLeftRoom', user);
+    this.eventsGateway.server.to(foundRoom.code).emit('userJoinLeave', {
+      user,
+      action: ManagePlayersInRoom.LEAVE,
+      updatedRoomData: updatedRoom,
+    });
 
     return { data: true, message: 'Successfully left the room' };
   }
@@ -143,15 +156,15 @@ export class RoomsController {
     if (!user.currentRoom)
       throw new BadRequestException('You are not a member of any room');
 
-    await this.roomsService.manageUserReadiness(
-      user.currentRoom._id,
+    const updatedRoom = await this.roomsService.manageUserReadiness(
+      user.currentRoom,
       user._id,
       action,
     );
 
     this.eventsGateway.server
       .to(user.currentRoom.code)
-      .emit('userSetReady', user, action);
+      .emit('userSetReady', { user, updatedRoomData: updatedRoom, action });
 
     return {
       data: user._id,

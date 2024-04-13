@@ -9,6 +9,11 @@ import { Room as RoomSchema } from './schemas/room.schema';
 type FilterAnswerType = FilterQuery<Room>;
 type ProjectonType = ProjectionType<Room>;
 
+const populate = [
+  { path: 'players', select: { password: 0 } },
+  { path: 'owner', select: { password: 0 } },
+];
+
 @Injectable()
 export class RoomsService {
   constructor(
@@ -31,10 +36,7 @@ export class RoomsService {
   ): Promise<Room> {
     const foundRoom = await this.roomModel
       .findOne(filter, projection, {
-        populate: [
-          { path: 'players', select: { password: 0 } },
-          { path: 'owner', select: { password: 0 } },
-        ],
+        populate,
       })
       .exec();
 
@@ -76,6 +78,7 @@ export class RoomsService {
 
       const room = await this.roomModel.findByIdAndUpdate(roomId, update, {
         new: true,
+        populate,
       });
 
       if (!room) throw new NotFoundException('Room not found');
@@ -94,7 +97,7 @@ export class RoomsService {
   }
 
   async manageUserReadiness(
-    roomId: string,
+    room: Room,
     userId: string,
     action: ManagePlayerReadiness,
   ) {
@@ -106,13 +109,23 @@ export class RoomsService {
         update.$pull = { playersReadiness: userId };
       }
 
-      const room = await this.roomModel.findByIdAndUpdate(roomId, update, {
-        new: true,
-      });
+      //Note: the reason why I add +1 is because its checking before update
+      if (
+        room.players.length === room.playersReadiness.length + 1 &&
+        action === ManagePlayerReadiness.READY
+      )
+        update.$set = { canStart: true };
+      else update.$set = { canStart: false };
 
-      if (!room) throw new NotFoundException('Room not found');
+      const updatedRoom = await this.roomModel.findByIdAndUpdate(
+        room._id,
+        update,
+        { populate, new: true },
+      );
 
-      return room;
+      if (!updatedRoom) throw new NotFoundException('Room not found');
+
+      return updatedRoom;
     } catch (error) {
       console.error('Error managing user readiness in room:', error);
     }

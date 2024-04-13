@@ -6,6 +6,7 @@ import { ParticipantRoomActions } from "./participant-room-actions";
 import { OwnerRoomActions } from "./owner-room-actions";
 import { OwnerUserActions } from "./owner-user-actions";
 import { useRoomLobbyContext } from "./room-lobby-context";
+import { StartGameLogic } from "./start-game-logic";
 
 export const RoomLobby: FC = () => {
   const {
@@ -56,6 +57,7 @@ export const RoomLobby: FC = () => {
     <div className={styles.roomLobbyWrapper}>
       <h2>Room lobby {data.name}</h2>
       <div>Code: {data.code}</div>
+      {data.canStart ? <StartGameLogic /> : null}
       {isOwner ? <OwnerRoomActions /> : null}
       <div className={styles.leaveRoomButton}>
         <ParticipantRoomActions />

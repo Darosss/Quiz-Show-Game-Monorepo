@@ -55,7 +55,10 @@ export class UsersService {
     return foundUser;
   }
 
-  update(filter: FilterQueryUserType, updateUserDto: UpdateUserDto) {
+  update(
+    filter: FilterQueryUserType,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
     return this.userModel.findOneAndUpdate(filter, updateUserDto, {
       new: true,
     });

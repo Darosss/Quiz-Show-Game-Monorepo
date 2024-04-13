@@ -1,5 +1,4 @@
 import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
-import { ManagePlayerReadiness } from "@/shared/enums";
 import { Room } from "@/shared/types";
 import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, createContext, useContext, useEffect } from "react";
@@ -30,7 +29,7 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
 
   const {
     emits: { joinRoom },
-    events: { userJoinedRoom, userLeftRoom, userSetReady },
+    events: { userJoinLeave, userSetReady },
   } = useSocketEventsContext();
 
   useEffect(() => {
@@ -40,68 +39,43 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
   }, [joinRoom, responseData.data?.code]);
 
   useEffect(() => {
-    userJoinedRoom.on((user) => {
+    userJoinLeave.on(({ user: userData, updatedRoomData, action }) => {
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
-        const newPlayers = [...prevState.data.players, user];
         const newState = {
           ...prevState,
           data: {
             ...prevState.data,
-            players: newPlayers,
+            players: updatedRoomData.players,
           },
         };
         return newState;
       });
-      toast.info(`${user.username} joined the room`);
+      toast.info(`${userData.username} ${action} the room`);
     });
     return () => {
-      userJoinedRoom.off();
+      userJoinLeave.off();
     };
-  }, [userJoinedRoom, setResponseData]);
+  }, [userJoinLeave, setResponseData]);
 
   useEffect(() => {
-    userLeftRoom.on((leftUser) => {
-      setResponseData((prevState) => {
-        if (!prevState.data) return prevState;
-        const newPlayers = prevState.data.players.filter(
-          (user) => user._id !== leftUser._id
-        );
-        const newState = {
-          ...prevState,
-          data: {
-            ...prevState.data,
-            players: newPlayers,
-          },
-        };
-        return newState;
-      });
-      toast.info(`${leftUser.username} left the room`);
-    });
+    userSetReady.on(
+      ({ user, updatedRoomData: { canStart, playersReadiness }, action }) => {
+        setResponseData((prevState) => {
+          if (!prevState.data) return prevState;
 
-    return () => {
-      userLeftRoom.off();
-    };
-  }, [setResponseData, userLeftRoom]);
-  useEffect(() => {
-    userSetReady.on((user, action) => {
-      setResponseData((prevState) => {
-        if (!prevState.data) return prevState;
-        const newPlayersReadiness =
-          action === ManagePlayerReadiness.READY
-            ? [...prevState.data.playersReadiness, user._id]
-            : prevState.data.playersReadiness.filter((id) => id !== user._id);
-
-        const newState = {
-          ...prevState,
-          data: {
-            ...prevState.data,
-            playersReadiness: newPlayersReadiness,
-          },
-        };
-        return newState;
-      });
-    });
+          const newState = {
+            ...prevState,
+            data: {
+              ...prevState.data,
+              playersReadiness,
+              canStart,
+            },
+          };
+          return newState;
+        });
+      }
+    );
 
     return () => {
       userSetReady.off();

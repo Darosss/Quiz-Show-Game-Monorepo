@@ -9,19 +9,13 @@ export const getSocketEventsFunctions = (
   socketConnection: Socket<ServerToClientEvents, ClientToServerEvents>
 ): SocketContexType["events"] => {
   return {
-    userJoinedRoom: {
-      on: (cb) => socketConnection.on("userJoinedRoom", (user) => cb(user)),
-      off: () => socketConnection.off("userJoinedRoom"),
-    },
-
-    userLeftRoom: {
-      on: (cb) => socketConnection.on("userLeftRoom", (userId) => cb(userId)),
-      off: () => socketConnection.off("userLeftRoom"),
+    userJoinLeave: {
+      on: (cb) => socketConnection.on("userJoinLeave", (data) => cb(data)),
+      off: () => socketConnection.off("userJoinLeave"),
     },
 
     userSetReady: {
-      on: (cb) =>
-        socketConnection.on("userSetReady", (user, action) => cb(user, action)),
+      on: (cb) => socketConnection.on("userSetReady", (data) => cb(data)),
       off: () => socketConnection.off("userSetReady"),
     },
   };

@@ -72,15 +72,19 @@ const ReadyButton: FC = () => {
         setResponseData((prevState) => {
           if (!prevState.data) return prevState;
 
+          const { players, playersReadiness } = prevState.data;
+          const newCanStart = players.length === playersReadiness.length;
+
           const newPlayersReadiness = ready
-            ? prevState.data.playersReadiness.filter((id) => id !== data)
-            : [...prevState.data.playersReadiness, data];
+            ? playersReadiness.filter((id) => id !== data)
+            : [...playersReadiness, data];
 
           const newState = {
             ...prevState,
             data: {
               ...prevState.data,
               playersReadiness: newPlayersReadiness,
+              canStart: newCanStart,
             },
           };
 

@@ -1,12 +1,23 @@
-import { ManagePlayerReadiness } from "./enums";
+import { ManagePlayerReadiness, ManagePlayersInRoom } from "./enums";
 import { Room, User } from "./types";
 export type ServerToClientEvents = {
-  userJoinedRoom: (user: User) => void;
-  userLeftRoom: (user: User) => void;
-  userSetReady: (user: User, action: ManagePlayerReadiness) => void;
+  userJoinLeave: (data: UserJoinLeaveData) => void;
+  userSetReady: (data: UserSetReadyData) => void;
 };
 
 export type ClientToServerEvents = {
   joinRoom: (code: Room["code"]) => void;
   leaveRoom: (code: Room["code"]) => void;
+};
+
+type UserSetReadyData = {
+  user: User;
+  updatedRoomData: Pick<Room, "canStart" | "playersReadiness">;
+  action: ManagePlayerReadiness;
+};
+
+type UserJoinLeaveData = {
+  action: ManagePlayersInRoom;
+  user: User;
+  updatedRoomData: Pick<Room, "players">;
 };

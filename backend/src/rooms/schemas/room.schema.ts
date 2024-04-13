@@ -23,6 +23,9 @@ export class Room {
   @Prop()
   code: string;
 
+  @Prop({ type: Boolean, default: false })
+  canStart: boolean;
+
   @Prop({ default: now() })
   createdAt: Date;
 
