@@ -1,11 +1,13 @@
+import { useAuthContext } from "@/components/auth";
 import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
 import { Room } from "@/shared/types";
 import { useSocketEventsContext } from "@/socket/socket-events-context";
-import { FC, createContext, useContext, useEffect } from "react";
+import { FC, createContext, useContext, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 export type CurrentRoomResponseType = Room;
 type RoomLobbyContextType = {
   currentRoomApi: UseFetchReturnType<CurrentRoomResponseType, unknown>;
+  isOwner: boolean;
 };
 
 type RoomLobbyContextProvider = {
@@ -32,6 +34,12 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
     events: { userJoinLeave, userSetReady },
   } = useSocketEventsContext();
 
+  const { apiUser } = useAuthContext();
+
+  const isOwner = useMemo(
+    () => apiUser.api.data.sub === responseData.data?.owner._id,
+    [apiUser.api.data.sub, responseData.data?.owner._id]
+  );
   useEffect(() => {
     if (responseData.data?.code) {
       joinRoom(responseData.data?.code);
@@ -83,7 +91,7 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
   }, [setResponseData, userSetReady]);
 
   return (
-    <RoomLobbyContext.Provider value={{ currentRoomApi }}>
+    <RoomLobbyContext.Provider value={{ currentRoomApi, isOwner }}>
       {children}
     </RoomLobbyContext.Provider>
   );

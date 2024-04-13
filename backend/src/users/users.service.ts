@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FilterQuery, Model, ProjectionType, QueryOptions } from 'mongoose';
+import { FilterQuery, Model, ProjectionType } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { hashString } from 'src/auth/auth.helpers';
 import { Room, User } from 'src/shared';

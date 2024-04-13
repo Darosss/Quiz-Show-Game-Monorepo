@@ -1,8 +1,9 @@
 "use client";
 
 import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
-import { FC, createContext, useContext } from "react";
+import { FC, createContext, useContext, useEffect } from "react";
 import { RoomLobbyContextProvider } from "./lobby/room-lobby-context";
+import { useSocketEventsContext } from "@/socket/socket-events-context";
 
 export type CurrentActionUser = "IDLE" | "IN_ROOM" | "PLAYING";
 type GameSessionContextProviderProps = {
@@ -26,6 +27,20 @@ export const GameSessionContextProvider: FC<
     url: "users/current-action",
     method: "GET",
   });
+  const {
+    events: { startGame },
+  } = useSocketEventsContext();
+
+  useEffect(() => {
+    startGame.on(() => {
+      currentGameApi.fetchData();
+    });
+
+    return () => {
+      startGame.off();
+    };
+  }, [currentGameApi, startGame]);
+
   return (
     <GameSessionContext.Provider value={{ currentGameApi }}>
       <RoomLobbyContextProvider>{children}</RoomLobbyContextProvider>

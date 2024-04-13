@@ -25,6 +25,7 @@ import {
   User,
   ManagePlayerReadiness,
   ManagePlayersInRoom,
+  CurrentActionUser,
 } from 'src/shared';
 
 @Controller('rooms')
@@ -171,6 +172,39 @@ export class RoomsController {
       message: `You are ${
         action === ManagePlayerReadiness.NOT_READY ? 'NOT READY' : 'READY'
       }`,
+    };
+  }
+  @Post('start-a-game')
+  async startGame(@Request() req): Promise<ControllerResponseReturn<boolean>> {
+    const user = await this.usersService.findOne({ _id: req.user.sub });
+
+    if (!user.currentRoom)
+      throw new BadRequestException('You are not a member of any room');
+
+    if (!compareTwoIds(user.currentRoom.owner._id, user._id)) {
+      throw new BadRequestException(
+        'You are not a owner of this room in order to start a game',
+      );
+    }
+
+    //TODO: create game session in database
+
+    await this.roomsService.update(user.currentRoom._id, {
+      canStart: false,
+    });
+
+    for await (const player of user.currentRoom.players) {
+      await this.usersService.update(
+        { _id: player._id },
+        { currentAction: CurrentActionUser.PLAYING },
+      );
+    }
+
+    this.eventsGateway.server.to(user.currentRoom.code).emit('startGame');
+
+    return {
+      data: true,
+      message: 'Successfully started a room game',
     };
   }
 

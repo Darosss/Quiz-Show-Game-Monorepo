@@ -3,6 +3,7 @@ import { Room, User } from "./types";
 export type ServerToClientEvents = {
   userJoinLeave: (data: UserJoinLeaveData) => void;
   userSetReady: (data: UserSetReadyData) => void;
+  startGame: () => void;
 };
 
 export type ClientToServerEvents = {
