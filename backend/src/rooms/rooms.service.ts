@@ -6,7 +6,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { ManageUserInRoom } from './enums';
 import { ManagePlayerReadiness, Room, User } from 'src/shared';
 import { Room as RoomSchema } from './schemas/room.schema';
-type FilterAnswerType = FilterQuery<Room>;
+type FilterRoomType = FilterQuery<Room>;
 type ProjectonType = ProjectionType<Room>;
 
 const populate = [
@@ -22,8 +22,8 @@ export class RoomsService {
   ) {}
 
   async create(data: CreateRoomDto): Promise<Room> {
-    const createdAnswer = new this.roomModel(data);
-    return createdAnswer.save();
+    const createdRoom = new this.roomModel(data);
+    return createdRoom.save();
   }
 
   findAll(): Promise<Room[]> {
@@ -31,7 +31,7 @@ export class RoomsService {
   }
 
   async findOne(
-    filter: FilterAnswerType,
+    filter: FilterRoomType,
     projection?: ProjectonType,
   ): Promise<Room> {
     const foundRoom = await this.roomModel
