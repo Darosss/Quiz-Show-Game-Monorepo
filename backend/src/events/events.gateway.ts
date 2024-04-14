@@ -7,16 +7,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-//TODO: make paths aliases
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../../../shared/socket-events-types';
+import { ServerToClientEvents, ClientToServerEvents } from 'src/shared';
 
-const SocketEventsSubscribeMessage = SubscribeMessage<
-  keyof ClientToServerEvents
->;
-const SocketEmitsSubscribeMessage = SubscribeMessage<
+export const SocketEventsSubscribeMessage = SubscribeMessage<
   keyof ClientToServerEvents
 >;
 
