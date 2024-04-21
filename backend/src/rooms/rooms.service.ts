@@ -12,6 +12,7 @@ type ProjectonType = ProjectionType<Room>;
 const populate = [
   { path: 'players', select: { password: 0 } },
   { path: 'owner', select: { password: 0 } },
+  { path: 'game' },
 ];
 
 @Injectable()

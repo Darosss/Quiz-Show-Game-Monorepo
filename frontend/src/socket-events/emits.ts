@@ -11,5 +11,10 @@ export const getSocketEmitsFunctions = (
   return {
     joinRoom: (code) => socketConnection.emit("joinRoom", code),
     leaveRoom: (code) => socketConnection.emit("leaveRoom", code),
+    getGameSession: (room, cb) =>
+      socketConnection.emit("getGameSession", room, (e) => {
+        return cb(e);
+      }),
+    chooseAnswer: (data) => socketConnection.emit("chooseAnswer", data),
   };
 };

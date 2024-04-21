@@ -1,13 +1,10 @@
-import { IsInstance, IsString } from 'class-validator';
-import { User } from 'src/users';
+import { IsNumber, IsString } from 'class-validator';
+import { Room } from 'src/shared';
 
 export class CreateGameDto {
   @IsString()
-  name: string;
+  room: Room;
 
-  @IsInstance(User)
-  owner: User;
-
-  @IsString()
-  code: string;
+  @IsNumber()
+  questionsCount: number;
 }

@@ -10,7 +10,7 @@ type JoinRoomResponse = Room;
 export const JoinRoomView: FC = () => {
   const router = useRouter();
   const {
-    currentGameApi: { fetchData: fetchGameSession },
+    currentActionApi: { fetchData: fetchGameSession },
   } = useGameSessionContext();
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

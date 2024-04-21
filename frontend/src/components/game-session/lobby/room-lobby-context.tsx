@@ -24,7 +24,6 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
     url: "rooms/current-room",
     method: "GET",
   });
-
   const {
     api: { responseData, setResponseData },
   } = currentRoomApi;

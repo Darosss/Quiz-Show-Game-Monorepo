@@ -9,7 +9,7 @@ type CreateRoomFetchBody = { name: string };
 export const CreateRoomView: FC = () => {
   const router = useRouter();
   const {
-    currentGameApi: { fetchData: fetchGameSession },
+    currentActionApi: { fetchData: fetchGameSession },
   } = useGameSessionContext();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

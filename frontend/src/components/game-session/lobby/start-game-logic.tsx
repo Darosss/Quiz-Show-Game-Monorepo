@@ -3,6 +3,7 @@ import { formatTime } from "@/utils/utils";
 import { FC, useEffect, useState } from "react";
 import { useRoomLobbyContext } from "./room-lobby-context";
 import { useFetch } from "@/hooks/useFetch";
+import { addSecondsToDate } from "@/shared/index";
 
 export const StartGameLogic: FC = () => {
   const { isOwner } = useRoomLobbyContext();
@@ -24,10 +25,7 @@ export const StartGameLogic: FC = () => {
   });
 
   useEffect(() => {
-    const currentDate = new Date();
-    const updatedDate = new Date(currentDate.getTime() + 10 * 1000);
-
-    setToTimestamp(updatedDate.toString());
+    setToTimestamp(addSecondsToDate(3).toString());
   }, []);
 
   useEffect(() => {

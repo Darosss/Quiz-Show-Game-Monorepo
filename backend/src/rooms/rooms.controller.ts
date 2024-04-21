@@ -27,12 +27,14 @@ import {
   ManagePlayersInRoom,
   CurrentActionUser,
 } from 'src/shared';
+import { GamesService } from 'src/games';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(
     private readonly roomsService: RoomsService,
     private readonly usersService: UsersService,
+    private readonly gamesService: GamesService,
     private readonly eventsGateway: EventsGateway,
   ) {}
 
@@ -174,6 +176,7 @@ export class RoomsController {
       }`,
     };
   }
+
   @Post('start-a-game')
   async startGame(@Request() req): Promise<ControllerResponseReturn<boolean>> {
     const user = await this.usersService.findOne({ _id: req.user.sub });
@@ -189,8 +192,14 @@ export class RoomsController {
 
     //TODO: create game session in database
 
+    const game = await this.gamesService.create({
+      room: user.currentRoom,
+      questionsCount: 4,
+    });
+
     await this.roomsService.update(user.currentRoom._id, {
       canStart: false,
+      game,
     });
 
     for await (const player of user.currentRoom.players) {

@@ -1,5 +1,5 @@
 "use client";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useMemo } from "react";
 import { useGameSessionContext } from "./game-session-context";
 import { NoCurrentGame } from "./no-current-game";
 import { RoomLobby } from "./lobby/room-lobby";
@@ -8,7 +8,7 @@ import { useRoomLobbyContext } from "./lobby/room-lobby-context";
 
 export const CurrentGame: FC = () => {
   const {
-    currentGameApi: {
+    currentActionApi: {
       api: {
         responseData: { data },
       },
@@ -22,16 +22,16 @@ export const CurrentGame: FC = () => {
     fetchLobbyData();
   }, [fetchLobbyData]);
 
-  const CurrentSession = () => {
+  const CurrentSession = useMemo(() => {
     switch (data?.currentAction) {
       case "IN_ROOM":
-        return <RoomLobby />;
+        return RoomLobby;
       case "PLAYING":
-        return <GamePlaying />;
+        return GamePlaying;
       default:
-        return <NoCurrentGame />;
+        return NoCurrentGame;
     }
-  };
+  }, [data?.currentAction]);
 
   return (
     <div>

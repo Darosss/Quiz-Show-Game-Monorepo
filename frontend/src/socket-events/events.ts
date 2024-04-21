@@ -22,5 +22,27 @@ export const getSocketEventsFunctions = (
       on: (cb) => socketConnection.on("startGame", () => cb()),
       off: () => socketConnection.off("startGame"),
     },
+    userChoseAnswer: {
+      on: (cb) =>
+        socketConnection.on("userChoseAnswer", (currentPlayersAnswers) =>
+          cb(currentPlayersAnswers)
+        ),
+      off: () => socketConnection.off("userChoseAnswer"),
+    },
+    newQuestionInGame: {
+      on: (cb) => socketConnection.on("newQuestionInGame", (data) => cb(data)),
+      off: () => socketConnection.off("newQuestionInGame"),
+    },
+    showCurrentQuestionAnswersInGame: {
+      on: (cb) =>
+        socketConnection.on("showCurrentQuestionAnswersInGame", (data) =>
+          cb(data)
+        ),
+      off: () => socketConnection.off("showCurrentQuestionAnswersInGame"),
+    },
+    endGame: {
+      on: (cb) => socketConnection.on("endGame", (data) => cb(data)),
+      off: () => socketConnection.off("endGame"),
+    },
   };
 };

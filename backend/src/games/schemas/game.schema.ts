@@ -1,22 +1,61 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
-import { User } from 'src/users';
+import {
+  Room,
+  Game as GameType,
+  CurrentQuestionType,
+  GameOptions,
+  CurrentTimerGame,
+} from 'src/shared';
 
 export type GameDocument = HydratedDocument<Game>;
 
+//TODO: in all schemas change type: Object to schemas?
+
 @Schema({ timestamps: true })
-export class Game {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  players: User[];
+export class Game implements GameType {
+  _id: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Room' })
+  room: Room;
+
+  //TODO: this should be Question from db
+  @Prop({ type: Object })
+  currentQuestion: CurrentQuestionType | null;
+
+  //TODO: this should be Category from db
+  @Prop()
+  currentCategory: string | null;
+
+  @Prop({
+    type: Object,
+    default: {
+      questionsCount: 5,
+      timeForAnswerMs: 10000,
+      timeForNextQuestionMs: 8000,
+    },
+  })
+  options: GameOptions;
 
   @Prop()
-  name: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  owner: User;
+  canAnswer: boolean;
 
   @Prop()
-  code: string;
+  isFinished: boolean;
+
+  @Prop({ type: Object })
+  currentTimer: CurrentTimerGame | null;
+
+  @Prop({ default: 0 })
+  currentQuestionNumber: number;
+
+  //TODO: change this to schmea like:
+  // - playerId
+  // - answer
+  // - points
+
+  @Prop({ default: new Map() })
+  currentPlayersAnswers: Map<string, string>;
 
   @Prop({ default: now() })
   createdAt: Date;

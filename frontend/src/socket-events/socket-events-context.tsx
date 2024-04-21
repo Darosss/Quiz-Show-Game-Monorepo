@@ -27,6 +27,7 @@ export const SocketEventsContextProvider: FC<
   const events = useMemo<SocketContexType["events"]>(() => {
     return getSocketEventsFunctions(ioConnection);
   }, [ioConnection]);
+
   useEffect(() => {
     if (!ioConnection || !events) return;
 

@@ -43,6 +43,7 @@ export class UsersService {
           populate: [
             { path: 'players', select: { password: 0 } },
             { path: 'owner', select: { password: 0 } },
+            { path: 'game' },
           ],
         },
       })
