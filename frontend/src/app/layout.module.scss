@@ -38,12 +38,17 @@ main.mainWrapper {
   max-width: 70%;
   max-height: var(--content-height);
   min-height: var(--content-height);
-  align-items: center;
   justify-content: center;
   & > div {
     min-width: inherit;
+    display: flex;
+    flex-direction: column;
+
     & > h1 {
       text-align: center;
+    }
+    & > div {
+      flex: 0 1 90%;
     }
   }
   @include respond(large) {

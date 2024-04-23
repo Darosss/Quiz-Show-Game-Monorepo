@@ -33,9 +33,5 @@ export const CurrentGame: FC = () => {
     }
   }, [data?.currentAction]);
 
-  return (
-    <div>
-      <CurrentSession />
-    </div>
-  );
+  return <CurrentSession />;
 };

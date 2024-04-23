@@ -7,6 +7,7 @@ import { Button } from "../common";
 import { useAuthContext } from "../auth";
 import { useCountdownTimer } from "@/hooks/useCountdownTimer";
 import { formatTime } from "@/utils/utils";
+import styles from "./game-playing.module.scss";
 
 export const GamePlaying: FC = () => {
   const [showCorrect, setShowCorrect] = useState(false);
@@ -109,16 +110,21 @@ export const GamePlaying: FC = () => {
     };
   }, [endGame, setResponseData]);
   return (
-    <>
-      Game is playing
-      {!responseData.data?.isFinished ? (
-        <>
-          <GameTimers />
-          <GamePlayers />
-          <CurrentQuestion showCorrect={showCorrect} />
-        </>
+    <div className={styles.gamePlayingWrapper}>
+      {responseData.data?.isFinished ? (
+        <div className={styles.gameDetailsWrapper}>
+          <div className={styles.timer}>
+            <GameTimers />
+          </div>
+          <div className={styles.players}>
+            <GamePlayers />
+          </div>
+          <div className={styles.gameDetails}>
+            <CurrentQuestion showCorrect={showCorrect} />
+          </div>
+        </div>
       ) : null}
-    </>
+    </div>
   );
 };
 
@@ -152,27 +158,23 @@ const GamePlayers: FC = () => {
       api: { responseData: currentGameSessionData },
     },
   } = useGameSessionContext();
-  return (
-    <div>
-      {currentRoomApiData.data?.players.map((player) => {
-        console.log(currentGameSessionData.data?.currentPlayersAnswers, "aha");
-        if (!currentGameSessionData.data) return null;
-        const { currentPlayersAnswers } = currentGameSessionData.data;
-        const alreadyAnswered = Object.entries(currentPlayersAnswers).find(
-          ([id]) => id === player._id
-        )?.[1] as String;
+  return currentRoomApiData.data?.players.map((player, index) => {
+    console.log(currentGameSessionData.data?.currentPlayersAnswers, "aha");
+    if (!currentGameSessionData.data) return null;
+    const { currentPlayersAnswers } = currentGameSessionData.data;
+    const alreadyAnswered = Object.entries(currentPlayersAnswers).find(
+      ([id]) => id === player._id
+    )?.[1] as String;
 
-        return (
-          <div
-            key={player._id}
-            style={{ background: alreadyAnswered ? "orange" : "" }}
-          >
-            {player.username}
-          </div>
-        );
-      })}
-    </div>
-  );
+    return (
+      <div
+        key={player._id}
+        style={{ background: alreadyAnswered ? "orange" : "" }}
+      >
+        {player.username}
+      </div>
+    );
+  });
 };
 
 type CurrentQuestionProps = {
@@ -202,9 +204,9 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
     currentQuestion: { question, answers },
   } = gameSessionData.data;
   return (
-    <div>
+    <div className={styles.currentQuestionWrapper}>
       <h2>{question}</h2>
-      <div>
+      <div className={styles.answersWrapper}>
         {Object.entries(answers).map(
           ([id, data]: [string, QuestionAnswerType]) => (
             <Button
