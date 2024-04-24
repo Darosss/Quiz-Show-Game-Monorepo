@@ -192,7 +192,7 @@ export class RoomsController {
 
     //TODO: create game session in database
 
-    const game = await this.gamesService.create({
+    const game = await this.gamesService.createAndStartSession({
       room: user.currentRoom,
       questionsCount: 4,
     });

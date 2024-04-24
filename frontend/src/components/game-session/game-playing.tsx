@@ -2,7 +2,7 @@ import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, useEffect, useState } from "react";
 import { useRoomLobbyContext } from "./lobby/room-lobby-context";
 import { useGameSessionContext } from "./game-session-context";
-import { Game, QuestionAnswerType } from "@/shared/types";
+import { QuestionAnswerType } from "@/shared/types";
 import { Button } from "../common";
 import { useAuthContext } from "../auth";
 import { useCountdownTimer } from "@/hooks/useCountdownTimer";
@@ -12,12 +12,13 @@ import styles from "./game-playing.module.scss";
 export const GamePlaying: FC = () => {
   const [showCorrect, setShowCorrect] = useState(false);
   const {
-    emits: { getGameSession },
     events: {
       userChoseAnswer,
-      newQuestionInGame,
+      showNewQuestionInGame,
+      showQuestionPossibleAnswers,
       showCurrentQuestionAnswersInGame,
       endGame,
+      updateGameStage,
     },
   } = useSocketEventsContext();
 
@@ -36,14 +37,13 @@ export const GamePlaying: FC = () => {
     userChoseAnswer.on((currentPlayersAnswers) => {
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
-        const newState = {
+        return {
           ...prevState,
           data: {
             ...prevState.data,
             currentPlayersAnswers: currentPlayersAnswers,
           },
         };
-        return newState;
       });
     });
     return () => {
@@ -52,38 +52,44 @@ export const GamePlaying: FC = () => {
   }, [userChoseAnswer, setResponseData]);
 
   useEffect(() => {
-    newQuestionInGame.on((data) => {
+    showNewQuestionInGame.on(({ data, questionText }) => {
       setShowCorrect(false);
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
-        const newState = {
+        return {
           ...prevState,
           data: {
             ...prevState.data,
             ...data,
+            currentQuestion: { question: questionText, answers: new Map() },
           },
         };
-        return newState;
       });
     });
     return () => {
-      newQuestionInGame.off();
+      showNewQuestionInGame.off();
     };
-  }, [newQuestionInGame, setResponseData]);
+  }, [showNewQuestionInGame, setResponseData]);
+
+  useEffect(() => {
+    showQuestionPossibleAnswers.on((data) => {
+      setShowCorrect(false);
+      setResponseData((prevState) => {
+        if (!prevState.data) return prevState;
+        return { ...prevState, data: { ...prevState.data, ...data } };
+      });
+    });
+    return () => {
+      showQuestionPossibleAnswers.off();
+    };
+  }, [showQuestionPossibleAnswers, setResponseData]);
 
   useEffect(() => {
     showCurrentQuestionAnswersInGame.on((data) => {
       setShowCorrect(true);
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
-        const newState = {
-          ...prevState,
-          data: {
-            ...prevState.data,
-            ...data,
-          },
-        };
-        return newState;
+        return { ...prevState, data: { ...prevState.data, ...data } };
       });
     });
     return () => {
@@ -95,23 +101,30 @@ export const GamePlaying: FC = () => {
     endGame.on((data) => {
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
-        const newState = {
-          ...prevState,
-          data: {
-            ...prevState.data,
-            ...data,
-          },
-        };
-        return newState;
+        return { ...prevState, data: { ...prevState.data, ...data } };
       });
     });
     return () => {
       endGame.off();
     };
   }, [endGame, setResponseData]);
+
+  useEffect(() => {
+    updateGameStage.on((data) => {
+      console.log("got update stage ");
+      setResponseData((prevState) => {
+        if (!prevState.data) return prevState;
+        return { ...prevState, data: { ...prevState.data, ...data } };
+      });
+    });
+    return () => {
+      updateGameStage.off();
+    };
+  }, [updateGameStage, setResponseData]);
+  console.log(responseData.data?.isFinished);
   return (
     <div className={styles.gamePlayingWrapper}>
-      {responseData.data?.isFinished ? (
+      {!responseData.data?.isFinished ? (
         <div className={styles.gameDetailsWrapper}>
           <div className={styles.timer}>
             <GameTimers />
@@ -123,7 +136,9 @@ export const GamePlaying: FC = () => {
             <CurrentQuestion showCorrect={showCorrect} />
           </div>
         </div>
-      ) : null}
+      ) : (
+        <>Game is finished. TODO: Match results or redirect</>
+      )}
     </div>
   );
 };
@@ -140,8 +155,9 @@ const GameTimers: FC = () => {
 
   return (
     <div>
-      {currentGameSessionData.data?.currentTimer?.stage}:
-      {formatTime(remainingTime)}
+      {remainingTime && currentGameSessionData.data?.currentTimer?.stage
+        ? formatTime(remainingTime)
+        : null}
     </div>
   );
 };

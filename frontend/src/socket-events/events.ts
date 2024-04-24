@@ -29,9 +29,15 @@ export const getSocketEventsFunctions = (
         ),
       off: () => socketConnection.off("userChoseAnswer"),
     },
-    newQuestionInGame: {
-      on: (cb) => socketConnection.on("newQuestionInGame", (data) => cb(data)),
-      off: () => socketConnection.off("newQuestionInGame"),
+    showNewQuestionInGame: {
+      on: (cb) =>
+        socketConnection.on("showNewQuestionInGame", (data) => cb(data)),
+      off: () => socketConnection.off("showNewQuestionInGame"),
+    },
+    showQuestionPossibleAnswers: {
+      on: (cb) =>
+        socketConnection.on("showQuestionPossibleAnswers", (data) => cb(data)),
+      off: () => socketConnection.off("showQuestionPossibleAnswers"),
     },
     showCurrentQuestionAnswersInGame: {
       on: (cb) =>
@@ -43,6 +49,10 @@ export const getSocketEventsFunctions = (
     endGame: {
       on: (cb) => socketConnection.on("endGame", (data) => cb(data)),
       off: () => socketConnection.off("endGame"),
+    },
+    updateGameStage: {
+      on: (cb) => socketConnection.on("updateGameStage", (data) => cb(data)),
+      off: () => socketConnection.off("updateGameStage"),
     },
   };
 };

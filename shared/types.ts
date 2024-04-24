@@ -43,12 +43,19 @@ export type CurrentQuestionType = {
 
 export type GameOptions = {
   questionsCount: number;
+  timeForShowQuestionAnswersMs: number;
   timeForAnswerMs: number;
   timeForNextQuestionMs: number;
+  timeForShowQuestionResult: number;
 };
 
 export type CurrentTimerGame = {
-  stage: "GAME STARTING" | "WAIT FOR NEW QUESTION" | "ANSWER TIME"; //TODO: others stages
+  stage:
+    | "GAME STARTING"
+    | "QUESTION RESULT"
+    | "NEW QUESTION"
+    | "ANSWER TIME"
+    | "QUESTION"; //TODO: others stages
   date: Date;
 };
 

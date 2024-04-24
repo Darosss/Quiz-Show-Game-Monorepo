@@ -4,3 +4,6 @@ export const addSecondsToDate = (seconds: number, date?: Date): Date => {
 
   return updatedDate;
 };
+
+export const wait = (milliseconds: number) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));

@@ -4,7 +4,7 @@ import { FilterQuery, Model, ProjectionType } from 'mongoose';
 import { Game } from './schemas/game.schema';
 import { CreateGameDto } from './dto/create-game.dto';
 
-import { CurrentQuestionType, addSecondsToDate } from 'src/shared';
+import { CurrentQuestionType, addSecondsToDate, wait } from 'src/shared';
 
 import { UpdateGameDto } from './dto/update-game.dto';
 import { EventsGateway } from 'src/events';
@@ -86,69 +86,137 @@ export class GamesService {
     private readonly eventsGateway: EventsGateway,
   ) {}
 
-  async create(data: CreateGameDto): Promise<Game> {
+  async createAndStartSession(data: CreateGameDto): Promise<Game> {
+    const { gameStartInMs, ...restData } = data;
+    const gameStartIn = gameStartInMs || 5000;
     const createdGame = new this.gameModel({
-      ...data,
+      ...restData,
       currentTimer: {
         stage: 'GAME STARTING',
-        date: addSecondsToDate(5),
+        date: addSecondsToDate(gameStartIn / 1000),
       },
     });
 
     const game = await createdGame.save();
-    this.ongoingGamesTimers.set(createdGame._id, await this.gameTimeout(game));
+
+    //TOOD: note temporary solution - delay 1s
+    await wait(1000);
+    this.ongoingGamesTimers.set(
+      createdGame._id,
+      await this.gameTimeout(game, gameStartIn),
+    );
     return game;
   }
 
-  async gameTimeout(game: Game) {
+  async gameTimeout(game: Game, delay?: number) {
+    this.eventsGateway.server.emit('updateGameStage', game);
     return setTimeout(async () => {
-      const updatedGame = await this.update(game._id, {
-        currentQuestionNumber: game.currentQuestionNumber + 1,
-        currentQuestion: temporaryQuestions[game.currentQuestionNumber],
-        currentPlayersAnswers: new Map(),
-        canAnswer: true,
-        currentTimer: {
-          stage: 'ANSWER TIME',
-          date: addSecondsToDate(game.options.timeForAnswerMs / 1000),
-        },
-      });
-      console.log(
-        'Current question!',
-        updatedGame.currentQuestionNumber,
-        updatedGame.currentQuestion.question,
-      );
-      this.eventsGateway.server.emit('newQuestionInGame', updatedGame);
-      if (game.currentQuestionNumber >= game.options.questionsCount) {
-        this.eventsGateway.server.emit(
-          'endGame',
-          await this.update(updatedGame._id, { isFinished: true }),
-        );
-        return;
-      }
-      const timeForAnswer = updatedGame.options.timeForAnswerMs;
-      console.log(`"timeForAnswer:", ${timeForAnswer}`);
-      console.log(
-        `"timeForNextQuestion:", ${game.options.timeForNextQuestionMs}`,
-      );
+      const updatedGame = await this.handleGameStages(game);
 
-      setTimeout(async () => {
-        console.log('Show answers!!!', updatedGame.currentQuestion.answers);
-        const gameWithShowAnswers = await this.update(updatedGame._id, {
-          canAnswer: false,
-          currentTimer: {
-            stage: 'WAIT FOR NEW QUESTION',
-            date: addSecondsToDate(game.options.timeForNextQuestionMs / 1000),
-          },
-        });
-        this.eventsGateway.server.emit(
-          'showCurrentQuestionAnswersInGame',
-          gameWithShowAnswers,
-        );
+      if (!updatedGame) return;
+      await this.gameTimeout(updatedGame, 1);
+    }, delay || game.options.timeForNextQuestionMs);
+  }
 
-        // Emit here which question is correct add points etc
-        await this.gameTimeout(updatedGame);
-      }, timeForAnswer);
-    }, game.options.timeForNextQuestionMs);
+  private async handleGameStages(game: Game) {
+    const answerTimeUpdate = await this.handleQuestionLogicStage(game);
+    if (game.currentQuestionNumber >= game.options.questionsCount)
+      return this.handleEndGameStage(game._id);
+
+    await wait(answerTimeUpdate.options.timeForAnswerMs);
+
+    const correctAnswersUpdate = await this.handleShowCorrectAnswersStage(
+      answerTimeUpdate,
+    );
+    await wait(correctAnswersUpdate.options.timeForShowQuestionResult);
+
+    const updatedGame = await this.handleNewQuestionStage(correctAnswersUpdate);
+    await wait(updatedGame.options.timeForNextQuestionMs);
+
+    return updatedGame;
+  }
+
+  private async handleNewQuestionStage(data: Pick<Game, '_id' | 'options'>) {
+    const { _id, options } = data;
+    const updatedGame = await this.update(_id, {
+      canAnswer: true,
+      currentTimer: {
+        stage: 'NEW QUESTION',
+        date: addSecondsToDate(options.timeForNextQuestionMs / 1000),
+      },
+    });
+    this.eventsGateway.server.emit('updateGameStage', updatedGame);
+    return updatedGame;
+  }
+
+  private async handleEndGameStage(gameId: string) {
+    this.eventsGateway.server.emit(
+      'endGame',
+      await this.update(gameId, { isFinished: true }),
+    );
+  }
+
+  private async handleQuestionLogicStage(
+    data: Pick<Game, '_id' | 'currentQuestionNumber' | 'options'>,
+  ) {
+    const { _id, currentQuestionNumber, options } = data;
+    const updatedGame = await this.update(_id, {
+      currentQuestionNumber: currentQuestionNumber + 1,
+      currentQuestion: temporaryQuestions[currentQuestionNumber],
+      currentPlayersAnswers: new Map(),
+      canAnswer: false,
+      currentTimer: {
+        stage: 'QUESTION',
+        date: addSecondsToDate(options.timeForShowQuestionAnswersMs / 1000),
+      },
+    });
+    this.eventsGateway.server.emit('showNewQuestionInGame', {
+      data: updatedGame,
+      questionText: updatedGame.currentQuestion.question,
+    });
+
+    await wait(updatedGame.options.timeForShowQuestionAnswersMs);
+
+    return this.handleAnswerTimeStage(updatedGame);
+  }
+
+  private async handleAnswerTimeStage(data: Pick<Game, '_id' | 'options'>) {
+    const { _id, options } = data;
+    const updatedGameWithPossibleAnswers = await this.update(_id, {
+      canAnswer: true,
+      currentTimer: {
+        stage: 'ANSWER TIME',
+        date: addSecondsToDate(options.timeForAnswerMs / 1000),
+      },
+    });
+
+    this.eventsGateway.server.emit(
+      'showQuestionPossibleAnswers',
+      updatedGameWithPossibleAnswers,
+    );
+
+    return updatedGameWithPossibleAnswers;
+  }
+
+  private async handleShowCorrectAnswersStage(
+    data: Pick<Game, '_id' | 'options'>,
+  ) {
+    const { _id, options } = data;
+    const gameWithShowAnswers = await this.update(_id, {
+      canAnswer: false,
+      currentTimer: {
+        stage: 'QUESTION RESULT',
+        date: addSecondsToDate(options.timeForShowQuestionResult / 1000),
+      },
+    });
+    this.eventsGateway.server.emit(
+      'showCurrentQuestionAnswersInGame',
+      gameWithShowAnswers,
+    );
+    //TODO: scores
+    // Emit here which question is correct add points etc
+
+    return gameWithShowAnswers;
   }
 
   findAll(): Promise<Game[]> {

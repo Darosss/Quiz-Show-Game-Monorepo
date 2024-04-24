@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Room } from 'src/shared';
 
 export class CreateGameDto {
@@ -7,4 +7,8 @@ export class CreateGameDto {
 
   @IsNumber()
   questionsCount: number;
+
+  @IsNumber()
+  @IsOptional()
+  gameStartInMs?: number;
 }

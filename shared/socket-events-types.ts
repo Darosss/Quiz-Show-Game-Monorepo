@@ -12,10 +12,12 @@ export type ServerToClientEvents = {
     currentPlayersAnswers: Game["currentPlayersAnswers"]
   ) => void;
 
-  newQuestionInGame: (
+  showNewQuestionInGame: (data: ShowNewQuestionInGameData) => void;
+
+  showQuestionPossibleAnswers: (
     data: Pick<
       Game,
-      "currentQuestion" | "canAnswer" | "currentPlayersAnswers" | "currentTimer"
+      "currentQuestion" | "currentTimer" | "canAnswer" | "currentPlayersAnswers"
     >
   ) => void;
 
@@ -23,6 +25,8 @@ export type ServerToClientEvents = {
     data: Pick<Game, "currentQuestion" | "currentTimer">
   ) => void;
 
+  //updateGameStage: For other simpler stages
+  updateGameStage: (data: Pick<Game, "currentTimer">) => void;
   endGame: (data: Game) => void;
 };
 
@@ -49,4 +53,10 @@ export type ChooseAnswerData = {
   gameId: string;
   playerId: string;
   answerId: string;
+};
+
+export type ShowNewQuestionInGameData = {
+  // Pick<Game, "currentQuestion" | "canAnswer" | "currentTimer">;
+  data: Pick<Game, "canAnswer" | "currentTimer">;
+  questionText: Game["currentQuestion"]["question"];
 };
