@@ -25,16 +25,15 @@ import {
   User,
   ManagePlayerReadiness,
   ManagePlayersInRoom,
-  CurrentActionUser,
 } from 'src/shared';
-import { GamesService } from 'src/games';
+import { GamesSessionsService } from 'src/games/games-sessions.service';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(
     private readonly roomsService: RoomsService,
     private readonly usersService: UsersService,
-    private readonly gamesService: GamesService,
+    private readonly gameSessionService: GamesSessionsService,
     private readonly eventsGateway: EventsGateway,
   ) {}
 
@@ -190,9 +189,7 @@ export class RoomsController {
       );
     }
 
-    //TODO: create game session in database
-
-    const game = await this.gamesService.createAndStartSession({
+    const game = await this.gameSessionService.createAndStartSession({
       room: user.currentRoom,
       questionsCount: 4,
     });
@@ -201,14 +198,6 @@ export class RoomsController {
       canStart: false,
       game,
     });
-
-    for await (const player of user.currentRoom.players) {
-      await this.usersService.update(
-        { _id: player._id },
-        { currentAction: CurrentActionUser.PLAYING },
-      );
-    }
-
     this.eventsGateway.server.to(user.currentRoom.code).emit('startGame');
 
     return {

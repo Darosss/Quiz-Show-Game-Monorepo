@@ -2,16 +2,13 @@ import { FC, FormEvent } from "react";
 import { Button } from "../common";
 import { fetchBackendApi } from "@/api/fetch";
 import { useRouter } from "next/navigation";
-import { useGameSessionContext } from "../game-session";
 import { Room } from "@/shared/index";
 
 type JoinRoomResponse = Room;
 
 export const JoinRoomView: FC = () => {
   const router = useRouter();
-  const {
-    currentActionApi: { fetchData: fetchGameSession },
-  } = useGameSessionContext();
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -27,7 +24,7 @@ export const JoinRoomView: FC = () => {
       const data = response?.data;
       if (!data) return;
 
-      fetchGameSession().then(() => router.push("game"));
+      router.push("game");
     });
   };
   return (

@@ -111,7 +111,6 @@ export const GamePlaying: FC = () => {
 
   useEffect(() => {
     updateGameStage.on((data) => {
-      console.log("got update stage ");
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
         return { ...prevState, data: { ...prevState.data, ...data } };
@@ -121,10 +120,9 @@ export const GamePlaying: FC = () => {
       updateGameStage.off();
     };
   }, [updateGameStage, setResponseData]);
-  console.log(responseData.data?.isFinished);
   return (
     <div className={styles.gamePlayingWrapper}>
-      {!responseData.data?.isFinished ? (
+      {responseData.data?.isFinished ? (
         <div className={styles.gameDetailsWrapper}>
           <div className={styles.timer}>
             <GameTimers />
@@ -156,7 +154,9 @@ const GameTimers: FC = () => {
   return (
     <div>
       {remainingTime && currentGameSessionData.data?.currentTimer?.stage
-        ? formatTime(remainingTime)
+        ? `${currentGameSessionData.data.currentTimer.stage}: ${formatTime(
+            remainingTime
+          )}`
         : null}
     </div>
   );
@@ -175,7 +175,6 @@ const GamePlayers: FC = () => {
     },
   } = useGameSessionContext();
   return currentRoomApiData.data?.players.map((player, index) => {
-    console.log(currentGameSessionData.data?.currentPlayersAnswers, "aha");
     if (!currentGameSessionData.data) return null;
     const { currentPlayersAnswers } = currentGameSessionData.data;
     const alreadyAnswered = Object.entries(currentPlayersAnswers).find(
@@ -212,7 +211,6 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
   const {
     emits: { chooseAnswer },
   } = useSocketEventsContext();
-  console.log(chooseAnswer);
   if (!gameSessionData.data || !gameSessionData.data?.currentQuestion)
     return null;
   const {

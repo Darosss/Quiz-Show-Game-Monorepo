@@ -6,15 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RolesSuperAdminGuard, RolesAdminSuperAdminGuard } from 'src/auth';
 import { OnlyIDParamDTO } from 'src/mongo';
-import { CurrentActionReturnType } from './types';
-import { ControllerResponseReturn } from 'src/types';
 
 @Controller('users')
 export class UsersController {
@@ -29,13 +26,6 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll({}, { password: false });
-  }
-  @Get('current-action')
-  async getGameSession(
-    @Request() req,
-  ): Promise<ControllerResponseReturn<CurrentActionReturnType>> {
-    const user = await this.findOne({ id: req.user.sub });
-    return { data: { currentAction: user.currentAction } };
   }
 
   @Get(':id')

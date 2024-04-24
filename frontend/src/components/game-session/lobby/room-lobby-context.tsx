@@ -4,6 +4,7 @@ import { Room } from "@/shared/types";
 import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, createContext, useContext, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
+import { useGameSessionContext } from "../game-session-context";
 export type CurrentRoomResponseType = Room;
 type RoomLobbyContextType = {
   currentRoomApi: UseFetchReturnType<CurrentRoomResponseType, unknown>;
@@ -26,13 +27,17 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
   });
   const {
     api: { responseData, setResponseData },
+    fetchData: fetchCurrentRoom,
   } = currentRoomApi;
 
   const {
     emits: { joinRoom },
-    events: { userJoinLeave, userSetReady },
+    events: { userJoinLeave, userSetReady, startGame },
   } = useSocketEventsContext();
 
+  const {
+    currentGameSessionApi: { fetchData: fetchGameSession },
+  } = useGameSessionContext();
   const { apiUser } = useAuthContext();
 
   const isOwner = useMemo(
@@ -44,6 +49,17 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
       joinRoom(responseData.data?.code);
     }
   }, [joinRoom, responseData.data?.code]);
+
+  useEffect(() => {
+    startGame.on(() => {
+      fetchCurrentRoom();
+      fetchGameSession();
+    });
+
+    return () => {
+      startGame.off();
+    };
+  }, [fetchCurrentRoom, fetchGameSession, startGame]);
 
   useEffect(() => {
     userJoinLeave.on(({ user: userData, updatedRoomData, action }) => {

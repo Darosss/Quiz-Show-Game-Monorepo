@@ -5,8 +5,11 @@ import { Game } from 'src/shared';
 
 export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   @IsOptional()
-  canStart: boolean;
+  canStart?: boolean;
 
   @IsOptional()
-  game: Game;
+  game?: Game;
+
+  @IsOptional()
+  playersReadiness?: string[];
 }

@@ -1,11 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
-import {
-  RolesUser,
-  CurrentActionUser,
-  User as UserType,
-  Room,
-} from 'src/shared';
+import { RolesUser, User as UserType, Room } from 'src/shared';
 
 export type QuizCategoryDocument = HydratedDocument<User>;
 
@@ -21,13 +16,6 @@ export class User implements UserType {
 
   @Prop({ default: RolesUser.User })
   roles: RolesUser[];
-
-  @Prop({
-    type: String,
-    enum: CurrentActionUser,
-    default: CurrentActionUser.IDLE,
-  })
-  currentAction: CurrentActionUser;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Room' })
   currentRoom?: Room;

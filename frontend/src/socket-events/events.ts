@@ -9,6 +9,10 @@ export const getSocketEventsFunctions = (
   socketConnection: Socket<ServerToClientEvents, ClientToServerEvents>
 ): SocketContexType["events"] => {
   return {
+    startGame: {
+      on: (cb) => socketConnection.on("startGame", () => cb()),
+      off: () => socketConnection.off("startGame"),
+    },
     userJoinLeave: {
       on: (cb) => socketConnection.on("userJoinLeave", (data) => cb(data)),
       off: () => socketConnection.off("userJoinLeave"),
@@ -17,10 +21,6 @@ export const getSocketEventsFunctions = (
     userSetReady: {
       on: (cb) => socketConnection.on("userSetReady", (data) => cb(data)),
       off: () => socketConnection.off("userSetReady"),
-    },
-    startGame: {
-      on: (cb) => socketConnection.on("startGame", () => cb()),
-      off: () => socketConnection.off("startGame"),
     },
     userChoseAnswer: {
       on: (cb) =>

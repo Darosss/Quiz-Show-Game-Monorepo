@@ -5,7 +5,6 @@ import { FilterQuery, Model, ProjectionType } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { hashString } from 'src/auth/auth.helpers';
 import { Room, User } from 'src/shared';
-import { CurrentActionUser } from 'src/shared';
 import { User as UserSchema } from './schemas/user.schema';
 
 type FilterQueryUserType = FilterQuery<User>;
@@ -70,15 +69,9 @@ export class UsersService {
   }
 
   changeUserCurrentRoom(userId: string, room: Room) {
-    return this.update(
-      { _id: userId },
-      { currentAction: CurrentActionUser.IN_ROOM, currentRoom: room },
-    );
+    return this.update({ _id: userId }, { currentRoom: room });
   }
   removeUserCurrentRoom(userId: string) {
-    return this.update(
-      { _id: userId },
-      { currentAction: CurrentActionUser.IDLE, currentRoom: null },
-    );
+    return this.update({ _id: userId }, { currentRoom: null });
   }
 }

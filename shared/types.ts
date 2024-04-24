@@ -1,4 +1,4 @@
-import { CurrentActionUser, RolesUser } from "./enums";
+import { RolesUser } from "./enums";
 
 type CommonFieldTypes = {
   _id: string;
@@ -10,7 +10,6 @@ export type User = CommonFieldTypes & {
   username: string;
   password: string;
   roles: RolesUser[];
-  currentAction: CurrentActionUser;
   currentRoom?: Room;
 };
 

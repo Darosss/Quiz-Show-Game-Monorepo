@@ -1,13 +1,14 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { CurrentTimerGame, Room } from 'src/shared';
+import { Room } from 'src/shared';
 
-export class CreateGameDto {
+export class CreateGameSessionDto {
   @IsString()
   room: Room;
 
   @IsNumber()
   questionsCount: number;
 
+  @IsNumber()
   @IsOptional()
-  currentTimer: CurrentTimerGame;
+  gameStartInMs?: number;
 }
