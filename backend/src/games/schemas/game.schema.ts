@@ -42,7 +42,7 @@ export class Game implements GameType {
   @Prop()
   canAnswer: boolean;
 
-  @Prop()
+  @Prop({ default: false })
   isFinished: boolean;
 
   @Prop({ type: Object })
