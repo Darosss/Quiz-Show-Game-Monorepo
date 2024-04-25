@@ -5,9 +5,15 @@ import { useAuthContext } from "@/components/auth";
 import { appRoutesList } from "./app-routes-list";
 import { usePathname } from "next/navigation";
 import { FC } from "react";
+import { useRoomLobbyContext } from "../game-session/lobby/room-lobby-context";
 
 export const MenuLinks: FC = () => {
   const { isLoggedIn } = useAuthContext();
+  const {
+    currentRoomApi: {
+      api: { responseData: roomLobbyData },
+    },
+  } = useRoomLobbyContext();
 
   const pathname = usePathname();
   return (
@@ -17,7 +23,7 @@ export const MenuLinks: FC = () => {
         .map(({ href, name }) => (
           <li
             key={href}
-            className={`${pathname.includes(href) ? styles.active : ""}`}
+            className={`${pathname === href ? styles.active : ""}`}
           >
             <Link href={href}>
               <p>{name}</p>
@@ -25,9 +31,19 @@ export const MenuLinks: FC = () => {
           </li>
         ))}
       {isLoggedIn ? (
-        <li>
-          <LogoutButton />
-        </li>
+        <>
+          {roomLobbyData.data ? (
+            <li className={`${pathname === "/game" ? styles.active : ""}`}>
+              <Link href="/game">
+                <p>{`${roomLobbyData.data.game ? "Game" : "Lobby"}`}</p>
+              </Link>
+            </li>
+          ) : null}
+
+          <li>
+            <LogoutButton />
+          </li>
+        </>
       ) : null}
     </ul>
   );
