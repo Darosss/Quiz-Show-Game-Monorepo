@@ -149,7 +149,6 @@ export class GamesSessionsService {
   ) {
     const { _id, options } = data;
     const updatedGame = await this.gameService.update(_id, {
-      canAnswer: true,
       currentTimer: {
         stage: 'NEW QUESTION',
         date: addSecondsToDate(options.timeForNextQuestionMs / 1000),
@@ -183,7 +182,6 @@ export class GamesSessionsService {
       currentQuestionNumber: currentQuestionNumber + 1,
       currentQuestion: temporaryQuestions[currentQuestionNumber],
       currentPlayersAnswers: new Map(),
-      canAnswer: false,
       currentTimer: {
         stage: 'QUESTION',
         date: addSecondsToDate(options.timeForShowQuestionAnswersMs / 1000),
