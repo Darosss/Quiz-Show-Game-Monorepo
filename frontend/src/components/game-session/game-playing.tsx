@@ -122,7 +122,7 @@ export const GamePlaying: FC = () => {
   }, [updateGameStage, setResponseData]);
   return (
     <div className={styles.gamePlayingWrapper}>
-      {responseData.data?.isFinished ? (
+      {!responseData.data?.isFinished ? (
         <div className={styles.gameDetailsWrapper}>
           <div className={styles.timer}>
             <GameTimers />
