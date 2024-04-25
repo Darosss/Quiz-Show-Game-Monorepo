@@ -25,9 +25,14 @@ export const GamePlaying: FC = () => {
   const {
     currentGameSessionApi: {
       api: { responseData, setResponseData },
+      clearCache: clearGameSessionCache,
       fetchData: fetchCurrentGameSession,
     },
   } = useGameSessionContext();
+
+  const {
+    currentRoomApi: { fetchData: fetchRoomLobbyData },
+  } = useRoomLobbyContext();
 
   useEffect(() => {
     fetchCurrentGameSession();
@@ -135,7 +140,17 @@ export const GamePlaying: FC = () => {
           </div>
         </div>
       ) : (
-        <>Game is finished. TODO: Match results or redirect</>
+        <>
+          <h2>Game is finished. TODO: Match results or redirect</h2>
+          <Button
+            onClick={() => {
+              clearGameSessionCache();
+              fetchRoomLobbyData();
+            }}
+          >
+            Back to room lobby
+          </Button>
+        </>
       )}
     </div>
   );
