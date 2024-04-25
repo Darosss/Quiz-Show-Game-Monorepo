@@ -1,4 +1,4 @@
-import { RolesUser } from "./enums";
+import { CurrentTimerGameStage, RolesUser } from "./enums";
 
 type CommonFieldTypes = {
   _id: string;
@@ -49,12 +49,7 @@ export type GameOptions = {
 };
 
 export type CurrentTimerGame = {
-  stage:
-    | "GAME STARTING"
-    | "QUESTION RESULT"
-    | "NEW QUESTION"
-    | "ANSWER TIME"
-    | "QUESTION"; //TODO: others stages
+  stage: CurrentTimerGameStage;
   date: Date;
 };
 

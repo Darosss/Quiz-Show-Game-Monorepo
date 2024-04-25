@@ -1,16 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
-import {
-  Room,
-  Game as GameType,
-  CurrentQuestionType,
-  GameOptions,
-  CurrentTimerGame,
-} from 'src/shared';
+import { Room, Game as GameType, CurrentQuestionType } from 'src/shared';
+import { GameOptions } from './game-options.schema';
+import { CurrentTimer } from './current-timer.schema';
 
 export type GameDocument = HydratedDocument<Game>;
-
-//TODO: in all schemas change type: Object to schemas?
 
 @Schema({ timestamps: true })
 export class Game implements GameType {
@@ -28,7 +22,7 @@ export class Game implements GameType {
   currentCategory: string | null;
 
   @Prop({
-    type: Object,
+    type: GameOptions,
     default: {
       questionsCount: 5,
       timeForAnswerMs: 10000,
@@ -45,8 +39,8 @@ export class Game implements GameType {
   @Prop({ default: false })
   isFinished: boolean;
 
-  @Prop({ type: Object })
-  currentTimer: CurrentTimerGame | null;
+  @Prop({ type: CurrentTimer })
+  currentTimer: CurrentTimer | null;
 
   @Prop({ default: 0 })
   currentQuestionNumber: number;

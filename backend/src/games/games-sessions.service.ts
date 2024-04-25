@@ -4,6 +4,7 @@ import { RoomsService } from 'src/rooms';
 import { EventsGateway } from 'src/events';
 import {
   CurrentQuestionType,
+  CurrentTimerGameStage,
   Game,
   Room,
   addSecondsToDate,
@@ -94,7 +95,7 @@ export class GamesSessionsService {
     const game = await this.gameService.create({
       ...restData,
       currentTimer: {
-        stage: 'GAME STARTING',
+        stage: CurrentTimerGameStage.GAME_STARTING,
         date: addSecondsToDate(gameStartIn / 1000),
       },
     });
@@ -150,7 +151,7 @@ export class GamesSessionsService {
     const { _id, options } = data;
     const updatedGame = await this.gameService.update(_id, {
       currentTimer: {
-        stage: 'NEW QUESTION',
+        stage: CurrentTimerGameStage.NEW_QUESTION,
         date: addSecondsToDate(options.timeForNextQuestionMs / 1000),
       },
     });
@@ -183,7 +184,7 @@ export class GamesSessionsService {
       currentQuestion: temporaryQuestions[currentQuestionNumber],
       currentPlayersAnswers: new Map(),
       currentTimer: {
-        stage: 'QUESTION',
+        stage: CurrentTimerGameStage.QUESTION,
         date: addSecondsToDate(options.timeForShowQuestionAnswersMs / 1000),
       },
     });
@@ -205,7 +206,7 @@ export class GamesSessionsService {
     const updatedGameWithPossibleAnswers = await this.gameService.update(_id, {
       canAnswer: true,
       currentTimer: {
-        stage: 'ANSWER TIME',
+        stage: CurrentTimerGameStage.ANSWER_TIME,
         date: addSecondsToDate(options.timeForAnswerMs / 1000),
       },
     });
@@ -225,7 +226,7 @@ export class GamesSessionsService {
     const gameWithShowAnswers = await this.gameService.update(_id, {
       canAnswer: false,
       currentTimer: {
-        stage: 'QUESTION RESULT',
+        stage: CurrentTimerGameStage.QUESTION_RESULT,
         date: addSecondsToDate(options.timeForShowQuestionResult / 1000),
       },
     });
