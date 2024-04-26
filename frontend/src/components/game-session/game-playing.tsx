@@ -199,20 +199,24 @@ const GamePlayers: FC = () => {
       ([id]) => id === player._id
     )?.[1] as PlayerDataGame | undefined;
 
+    const showUserAnswer =
+      currentPlayerData?.currentAnswer &&
+      !currentGameSessionData.data.canAnswer;
+    const userAnswered = !!currentPlayerData?.currentAnswer;
     return (
       <div
         key={player._id}
-        className={`${styles.gamePlayersWrapper} ${
-          currentPlayerData?.currentAnswer ? styles.answered : ""
+        className={`${styles.gamePlayersWrapper}
+        ${
+          showUserAnswer
+            ? styles[`answer${currentPlayerData.currentAnswer}`]
+            : userAnswered
+            ? styles.answered
+            : ""
         }`}
       >
         <div>{player.username}</div>
         <div>{currentPlayerData?.score}</div>
-        <div>
-          {!currentGameSessionData.data.canAnswer
-            ? currentPlayerData?.currentAnswer
-            : null}
-        </div>
       </div>
     );
   });
@@ -251,19 +255,29 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
           ([id, data]: [string, QuestionAnswerType]) => (
             <Button
               key={id + data.name}
-              defaultButtonType={`${
-                showCorrect && data.isCorrect ? "success" : "primary"
-              }`}
-              //TODO: remove possibilty when already choosen answer.
-              onClick={() =>
-                chooseAnswer({
-                  answerId: id,
-                  playerId: authData.sub,
-                  gameId: gameSessionId,
-                })
+              className={`${
+                showCorrect && data.isCorrect ? styles.answerCorrect : ""
               }
+                `}
+              //TODO: remove possibilty when already choosen answer.
+              onClick={() => {
+                if (gameSessionData.data?.canAnswer) {
+                  chooseAnswer({
+                    answerId: id,
+                    playerId: authData.sub,
+                    gameId: gameSessionId,
+                  });
+                }
+              }}
             >
-              {data.name}
+              {data.name}{" "}
+              <div
+                className={`${styles.answerSign} 
+                ${styles[`answer${id}`]}
+              `}
+              >
+                {" "}
+              </div>
             </Button>
           )
         )}

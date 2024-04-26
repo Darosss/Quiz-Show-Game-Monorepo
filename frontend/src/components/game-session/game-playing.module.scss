@@ -1,3 +1,15 @@
+$answer0: #eab308;
+$answer1: #06b6d4;
+$answer2: #f97316;
+$answer3: #ef4444;
+$answer4: #292524;
+$answer5: #6366f1;
+$answer6: #d946ef;
+$answer7: #f43f5e;
+$answer8: #f0abfc;
+$answerCorrect: #16a34a;
+$playerAnswered: #3b0764;
+
 .gamePlayingWrapper {
   display: flex;
   flex-direction: column;
@@ -33,10 +45,6 @@
         justify-content: space-around;
       }
 
-      .answered {
-        background-color: orange;
-      }
-
       & > div {
         border: 1px solid red;
       }
@@ -63,9 +71,52 @@
           & > button {
             max-width: 40%;
             min-width: 40%;
+            position: relative;
+
+            .answerSign {
+              position: absolute;
+              right: 2%;
+              top: 25%;
+              min-width: 5%;
+              min-height: 50%;
+              border-radius: 1rem;
+            }
           }
         }
       }
     }
   }
+}
+
+.answer0 {
+  background: $answer0;
+}
+.answer1 {
+  background: $answer1;
+}
+.answer2 {
+  background: $answer2;
+}
+.answer3 {
+  background: $answer3;
+}
+.answer4 {
+  background: $answer4;
+}
+.answer5 {
+  background: $answer5;
+}
+.answer6 {
+  background: $answer6;
+}
+.answer7 {
+  background: $answer7;
+}
+
+.answerCorrect {
+  background: $answerCorrect;
+}
+
+.answered {
+  background: $playerAnswered;
 }
