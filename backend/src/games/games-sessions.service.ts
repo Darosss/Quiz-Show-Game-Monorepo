@@ -176,6 +176,8 @@ export class GamesSessionsService {
         'endGame',
         await this.gameService.update(gameId, { isFinished: true }),
       );
+
+    await this.gameService.remove(gameId);
   }
 
   private async handleQuestionLogicStage(
