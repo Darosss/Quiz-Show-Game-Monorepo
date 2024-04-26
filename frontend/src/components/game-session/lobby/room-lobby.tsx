@@ -55,13 +55,16 @@ export const RoomLobby: FC = () => {
 
   return (
     <div className={styles.roomLobbyWrapper}>
-      <h2>Room lobby {data.name}</h2>
-      <div>Code: {data.code}</div>
-      {data.canStart ? <StartGameLogic /> : null}
-      {isOwner ? <OwnerRoomActions /> : null}
-      <div className={styles.leaveRoomButton}>
+      <div className={styles.roomDetailsWrapper}>
+        <h2>Room lobby {data.name}</h2>
+        <div>Code: {data.code}</div>
+        <div> {data.canStart ? <StartGameLogic /> : null}</div>
+      </div>
+      <div className={styles.roomActionsWrapper}>
+        {isOwner ? <OwnerRoomActions /> : null}
         <ParticipantRoomActions />
       </div>
+
       <div className={styles.lobbyPlayers}>{playersList}</div>
     </div>
   );

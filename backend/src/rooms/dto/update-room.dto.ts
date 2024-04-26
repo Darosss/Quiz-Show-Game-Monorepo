@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreateRoomDto } from './create-room.dto';
 import { IsOptional } from 'class-validator';
-import { Game } from 'src/shared';
+import { Game, RoomOptions } from 'src/shared';
 
 export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   @IsOptional()
@@ -12,4 +12,7 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {
 
   @IsOptional()
   playersReadiness?: string[];
+
+  @IsOptional()
+  options?: RoomOptions;
 }

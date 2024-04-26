@@ -24,13 +24,7 @@ export class Game implements GameType {
 
   @Prop({
     type: GameOptions,
-    default: {
-      questionsCount: 5,
-      timeForAnswerMs: 10000,
-      timeForNextQuestionMs: 4000,
-      timeForShowQuestionResult: 5000,
-      timeForShowQuestionAnswersMs: 8000,
-    },
+    default: new GameOptions(),
   })
   options: GameOptions;
 

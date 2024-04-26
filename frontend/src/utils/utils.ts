@@ -30,3 +30,27 @@ export const formatTime = (milliseconds: number): string => {
 const padWithZero = (value: number) => {
   return value < 10 ? `0${value}` : value;
 };
+
+export const prettierCamelCaseName = (name: string): string => {
+  if (!name.trim()) {
+    return name;
+  } else if (name.toUpperCase() === name) {
+    return name;
+  }
+
+  const trimmedName = name.trim();
+
+  const parts = trimmedName.split(/(?=[A-Z])/g);
+
+  return parts.reduce((camelCase, part, index) => {
+    // Always capitalize the first part or any part after a lowercase character
+    return (
+      camelCase +
+      (index === 0 || part[0].toLowerCase() === part[0]
+        ? part[0].toUpperCase()
+        : part[0]) +
+      part.slice(1) +
+      " "
+    );
+  }, "");
+};

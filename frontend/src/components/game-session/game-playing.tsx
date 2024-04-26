@@ -2,7 +2,7 @@ import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, useEffect, useState } from "react";
 import { useRoomLobbyContext } from "./lobby/room-lobby-context";
 import { useGameSessionContext } from "./game-session-context";
-import { Game, PlayerDataGame, QuestionAnswerType } from "@/shared/types";
+import { PlayerDataGame, QuestionAnswerType } from "@/shared/types";
 import { Button } from "../common";
 import { useAuthContext } from "../auth";
 import { useCountdownTimer } from "@/hooks/useCountdownTimer";
@@ -128,9 +128,12 @@ export const GamePlaying: FC = () => {
       updateGameStage.off();
     };
   }, [updateGameStage, setResponseData]);
+
+  if (!responseData.data) return <>TODO: No data refresh pelase </>;
+
   return (
     <div className={styles.gamePlayingWrapper}>
-      {!responseData.data?.isFinished ? (
+      {!responseData.data.isFinished ? (
         <div className={styles.gameDetailsWrapper}>
           <div className={styles.timer}>
             <GameTimers />

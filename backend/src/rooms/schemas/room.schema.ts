@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
 import { Game } from 'src/shared';
 import { User } from 'src/users';
+import { RoomOptions } from './room-options.schema';
 
 export type RoomDocument = HydratedDocument<Room>;
 
@@ -29,6 +30,9 @@ export class Room {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Game' })
   game: Game | null;
+
+  @Prop({ type: RoomOptions, default: new RoomOptions() })
+  options: RoomOptions;
 
   @Prop({ default: now() })
   createdAt: Date;

@@ -8,7 +8,7 @@ import { addSecondsToDate } from "@/shared/index";
 export const StartGameLogic: FC = () => {
   const { isOwner } = useRoomLobbyContext();
 
-  const { fetchData: fetchStartAGame } = useFetch(
+  const { fetchData: fetchStartAGame } = useFetch<boolean>(
     {
       url: "rooms/start-a-game",
       method: "POST",

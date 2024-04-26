@@ -25,6 +25,8 @@ import {
   User,
   ManagePlayerReadiness,
   ManagePlayersInRoom,
+  GameOptions,
+  RoomOptions,
 } from 'src/shared';
 import { GamesSessionsService } from 'src/games/games-sessions.service';
 
@@ -191,7 +193,7 @@ export class RoomsController {
 
     const game = await this.gameSessionService.createAndStartSession({
       room: user.currentRoom,
-      questionsCount: 4,
+      options: user.currentRoom.options.gameOptions,
     });
 
     await this.roomsService.update(user.currentRoom._id, {
@@ -224,6 +226,22 @@ export class RoomsController {
     @Body() updateQuizAnswerDto: UpdateRoomDto,
   ) {
     return this.roomsService.update(id, updateQuizAnswerDto);
+  }
+
+  @Patch(':id/update-options')
+  async updateOptions(
+    @Request() req,
+    @Param() { id }: OnlyIDParamDTO,
+    @Body() options: RoomOptions,
+  ): Promise<ControllerResponseReturn<Room>> {
+    const user = await this.usersService.findOne({ _id: req.user.sub });
+    if (!compareTwoIds(user.currentRoom.owner._id, user._id))
+      throw new BadRequestException('You are not a owner of this room');
+
+    return {
+      data: await this.roomsService.update(id, { options }),
+      message: 'Successfully updated room options',
+    };
   }
 
   @RolesAdminSuperAdminGuard()

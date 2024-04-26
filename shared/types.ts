@@ -13,6 +13,12 @@ export type User = CommonFieldTypes & {
   currentRoom?: Room;
 };
 
+export type RoomOptions = {
+  maxPlayers: number;
+
+  gameOptions: GameOptions;
+};
+
 export type Room = CommonFieldTypes & {
   name: string;
   code: string;
@@ -21,6 +27,7 @@ export type Room = CommonFieldTypes & {
   playersReadiness: string[];
   canStart: boolean;
   game: Game | null;
+  options: RoomOptions;
 };
 
 export type UserTokenInfo = {

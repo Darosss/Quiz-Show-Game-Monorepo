@@ -46,6 +46,10 @@ export class GamesService {
       .exec();
   }
 
+  remove(id: string) {
+    return this.gameModel.findByIdAndDelete(id);
+  }
+
   async updateCurrentPlayerAnswer(
     id: string,
     playerId: string,
