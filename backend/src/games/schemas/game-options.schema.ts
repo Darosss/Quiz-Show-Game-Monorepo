@@ -20,4 +20,10 @@ export class GameOptions implements GameOptionsType {
 
   @Prop({ default: 8000 })
   timeForShowQuestionAnswersMs: number;
+
+  @Prop({ default: 100 })
+  pointsPerCorrect: number;
+
+  @Prop({ default: -100 })
+  pointsPerWrong: number;
 }

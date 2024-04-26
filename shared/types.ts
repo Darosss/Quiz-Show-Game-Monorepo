@@ -46,6 +46,9 @@ export type GameOptions = {
   timeForAnswerMs: number;
   timeForNextQuestionMs: number;
   timeForShowQuestionResult: number;
+
+  pointsPerCorrect: number;
+  pointsPerWrong: number;
 };
 
 export type CurrentTimerGame = {

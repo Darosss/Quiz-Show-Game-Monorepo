@@ -267,9 +267,6 @@ export class GamesSessionsService {
   private async handleScorePointsPlayersLogic(
     data: Pick<Game, '_id' | 'options' | 'playersData' | 'currentQuestion'>,
   ) {
-    const HARD_CODED_VALUE = 100;
-    //NOTE: now it's made simple 100 points for correct, -100 for wrong
-    //TODO: make not hard coded working with options later
     const playersDataInst = new Map(data.playersData);
 
     data.playersData.forEach((value, key) => {
@@ -280,8 +277,8 @@ export class GamesSessionsService {
         : null;
 
       const scoreValue = madeCorrectAnswer
-        ? HARD_CODED_VALUE
-        : -HARD_CODED_VALUE;
+        ? data.options.pointsPerCorrect
+        : -data.options.pointsPerWrong;
       if (playersDataInst.has(key)) {
         const previousPlayerData = playersDataInst.get(key);
         const newScoreValue = Math.max(
