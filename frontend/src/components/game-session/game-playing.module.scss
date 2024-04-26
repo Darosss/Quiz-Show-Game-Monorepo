@@ -28,6 +28,15 @@
       justify-self: stretch;
       align-self: center;
 
+      .gamePlayersWrapper {
+        display: flex;
+        justify-content: space-around;
+      }
+
+      .answered {
+        background-color: orange;
+      }
+
       & > div {
         border: 1px solid red;
       }

@@ -37,7 +37,7 @@ export type QuestionAnswerType = {
 
 export type CurrentQuestionType = {
   question: string;
-  answers: Map<string, QuestionAnswerType>;
+  answers: Record<string, QuestionAnswerType>;
 };
 
 export type GameOptions = {
@@ -53,14 +53,19 @@ export type CurrentTimerGame = {
   date: Date;
 };
 
+export type PlayerDataGame = {
+  score: number;
+  currentAnswer?: string;
+};
+
 export type Game = CommonFieldTypes & {
   room: Room;
   currentQuestion: CurrentQuestionType | null;
   currentCategory: string | null;
   canAnswer: boolean;
   currentTimer: CurrentTimerGame | null;
-  currentPlayersAnswers: Map<String, String>;
   currentQuestionNumber: number;
   options: GameOptions;
   isFinished: boolean;
+  playersData: Map<string, PlayerDataGame>;
 };

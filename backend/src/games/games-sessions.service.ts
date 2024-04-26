@@ -6,6 +6,7 @@ import {
   CurrentQuestionType,
   CurrentTimerGameStage,
   Game,
+  PlayerDataGame,
   Room,
   addSecondsToDate,
   wait,
@@ -15,66 +16,66 @@ import { CreateGameSessionDto } from './dto/create-game-session.dto';
 const temporaryQuestions: CurrentQuestionType[] = [
   {
     question: 'Question 1',
-    answers: new Map([
-      ['2', { name: 'True', isCorrect: true }],
-      ['0', { name: 'Not true' }],
-      ['1', { name: 'Not true 2' }],
-      ['3', { name: 'Not' }],
-    ]),
+    answers: {
+      '2': { name: 'True', isCorrect: true },
+      '0': { name: 'Not true' },
+      '1': { name: 'Not true 2' },
+      '3': { name: 'Not' },
+    },
   },
   {
     question: 'Question 2',
-    answers: new Map([
-      ['0', { name: 'Not true' }],
-      ['1', { name: 'Not true 2' }],
-      ['3', { name: 'Not' }],
-      ['2', { name: 'True 2', isCorrect: true }],
-    ]),
+    answers: {
+      '0': { name: 'Not true' },
+      '1': { name: 'Not true 2' },
+      '3': { name: 'Not' },
+      '2': { name: 'True 2', isCorrect: true },
+    },
   },
   {
     question: 'Question 3',
-    answers: new Map([
-      ['0', { name: 'Not true' }],
-      ['1', { name: 'Not true 2' }],
-      ['2', { name: 'True 3', isCorrect: true }],
-      ['3', { name: 'Not' }],
-    ]),
+    answers: {
+      '0': { name: 'Not true' },
+      '1': { name: 'Not true 2' },
+      '2': { name: 'True 3', isCorrect: true },
+      '3': { name: 'Not' },
+    },
   },
   {
     question: 'Question 4',
-    answers: new Map([
-      ['0', { name: 'Not true' }],
-      ['1', { name: 'Not true 2' }],
-      ['2', { name: 'True 4', isCorrect: true }],
-      ['3', { name: 'Not' }],
-    ]),
+    answers: {
+      '0': { name: 'Not true' },
+      '1': { name: 'Not true 2' },
+      '2': { name: 'True 4', isCorrect: true },
+      '3': { name: 'Not' },
+    },
   },
   {
     question: 'Question 5',
-    answers: new Map([
-      ['2', { name: 'True 5', isCorrect: true }],
-      ['0', { name: 'Not true' }],
-      ['1', { name: 'Not true 2' }],
-      ['3', { name: 'Not' }],
-    ]),
+    answers: {
+      '2': { name: 'True 5', isCorrect: true },
+      '0': { name: 'Not true' },
+      '1': { name: 'Not true 2' },
+      '3': { name: 'Not' },
+    },
   },
   {
     question: 'Question 6',
-    answers: new Map([
-      ['0', { name: 'Not true' }],
-      ['1', { name: 'Not true 2' }],
-      ['3', { name: 'Not' }],
-      ['2', { name: 'True 6', isCorrect: true }],
-    ]),
+    answers: {
+      '0': { name: 'Not true' },
+      '1': { name: 'Not true 2' },
+      '3': { name: 'Not' },
+      '2': { name: 'True 6', isCorrect: true },
+    },
   },
   {
     question: 'Question 7',
-    answers: new Map([
-      ['2', { name: 'True 7 1', isCorrect: true }],
-      ['2', { name: 'True 7 2', isCorrect: true }],
-      ['1', { name: 'Not true 2' }],
-      ['3', { name: 'Not' }],
-    ]),
+    answers: {
+      '2': { name: 'True 7 1', isCorrect: true },
+      '0': { name: 'True 7 2', isCorrect: true },
+      '1': { name: 'Not true 2' },
+      '3': { name: 'Not' },
+    },
   },
 ];
 
@@ -94,6 +95,9 @@ export class GamesSessionsService {
 
     const game = await this.gameService.create({
       ...restData,
+      playersData: new Map(
+        restData.room.players.map((player) => [player._id, { score: 0 }]),
+      ),
       currentTimer: {
         stage: CurrentTimerGameStage.GAME_STARTING,
         date: addSecondsToDate(gameStartIn / 1000),
@@ -175,19 +179,13 @@ export class GamesSessionsService {
   }
 
   private async handleQuestionLogicStage(
-    data: Pick<Game, '_id' | 'currentQuestionNumber' | 'options'>,
+    data: Pick<
+      Game,
+      '_id' | 'currentQuestionNumber' | 'options' | 'playersData'
+    >,
     roomCode: Room['code'],
   ) {
-    const { _id, currentQuestionNumber, options } = data;
-    const updatedGame = await this.gameService.update(_id, {
-      currentQuestionNumber: currentQuestionNumber + 1,
-      currentQuestion: temporaryQuestions[currentQuestionNumber],
-      currentPlayersAnswers: new Map(),
-      currentTimer: {
-        stage: CurrentTimerGameStage.QUESTION,
-        date: addSecondsToDate(options.timeForShowQuestionAnswersMs / 1000),
-      },
-    });
+    const updatedGame = await this.updateGameForNewQuestion(data);
     this.eventsGateway.server.to(roomCode).emit('showNewQuestionInGame', {
       data: updatedGame,
       questionText: updatedGame.currentQuestion.question,
@@ -196,6 +194,33 @@ export class GamesSessionsService {
     await wait(updatedGame.options.timeForShowQuestionAnswersMs);
 
     return this.handleAnswerTimeStage(updatedGame, roomCode);
+  }
+
+  private async updateGameForNewQuestion(
+    data: Pick<
+      Game,
+      '_id' | 'currentQuestionNumber' | 'options' | 'playersData'
+    >,
+  ) {
+    const { _id, currentQuestionNumber, options, playersData } = data;
+
+    const newPlayersData = new Map(
+      [...playersData].map(([id, data]) => {
+        return [id, { score: data.score } as PlayerDataGame];
+      }),
+    );
+
+    const updatedGame = await this.gameService.update(_id, {
+      currentQuestionNumber: currentQuestionNumber + 1,
+      currentQuestion: temporaryQuestions[currentQuestionNumber],
+      playersData: newPlayersData,
+      currentTimer: {
+        stage: CurrentTimerGameStage.QUESTION,
+        date: addSecondsToDate(options.timeForShowQuestionAnswersMs / 1000),
+      },
+    });
+
+    return updatedGame;
   }
 
   private async handleAnswerTimeStage(
@@ -219,7 +244,7 @@ export class GamesSessionsService {
   }
 
   private async handleShowCorrectAnswersStage(
-    data: Pick<Game, '_id' | 'options'>,
+    data: Pick<Game, '_id' | 'options' | 'playersData'>,
     roomCode: Room['code'],
   ) {
     const { _id, options } = data;
@@ -232,10 +257,50 @@ export class GamesSessionsService {
     });
     this.eventsGateway.server
       .to(roomCode)
-      .emit('showCurrentQuestionAnswersInGame', gameWithShowAnswers);
+      .emit('showQuestionCorrectAnswersInGame', gameWithShowAnswers);
     //TODO: scores
     // Emit here which question is correct add points etc
-
+    await this.handleScorePointsPlayersLogic(gameWithShowAnswers);
     return gameWithShowAnswers;
+  }
+
+  private async handleScorePointsPlayersLogic(
+    data: Pick<Game, '_id' | 'options' | 'playersData' | 'currentQuestion'>,
+  ) {
+    const HARD_CODED_VALUE = 100;
+    //NOTE: now it's made simple 100 points for correct, -100 for wrong
+    //TODO: make not hard coded working with options later
+    const playersDataInst = new Map(data.playersData);
+
+    data.playersData.forEach((value, key) => {
+      const madeCorrectAnswer = value.currentAnswer
+        ? Object.entries(data.currentQuestion.answers).find(
+            ([answerId]) => answerId === value.currentAnswer,
+          )[1].isCorrect
+        : null;
+
+      const scoreValue = madeCorrectAnswer
+        ? HARD_CODED_VALUE
+        : -HARD_CODED_VALUE;
+      if (playersDataInst.has(key)) {
+        const previousPlayerData = playersDataInst.get(key);
+        const newScoreValue = Math.max(
+          0,
+          previousPlayerData.score + scoreValue,
+        );
+        playersDataInst.set(key, {
+          ...previousPlayerData,
+          score: newScoreValue,
+        });
+      } else {
+        playersDataInst.set(key, {
+          score: Math.max(0, scoreValue),
+        });
+      }
+    });
+
+    await this.gameService.update(data._id, {
+      playersData: playersDataInst,
+    });
   }
 }

@@ -1,5 +1,6 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { CurrentTimerGame, Room } from 'src/shared';
+import { CurrentTimerGame, Game, Room } from 'src/shared';
+import { PlayerData } from '../schemas/player-data.schema';
 
 export class CreateGameDto {
   @IsString()
@@ -9,5 +10,8 @@ export class CreateGameDto {
   questionsCount: number;
 
   @IsOptional()
-  currentTimer: CurrentTimerGame;
+  currentTimer?: CurrentTimerGame;
+
+  @IsOptional()
+  playersData?: Game['playersData'];
 }

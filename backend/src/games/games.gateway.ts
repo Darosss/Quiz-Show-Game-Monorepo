@@ -36,7 +36,16 @@ export class GamesGateway {
       playerId,
       answerId,
     );
+    //Do not emit where no game found === no game found === can't choose answer
+    if (!game) return;
 
-    this.server.emit('userChoseAnswer', game.currentPlayersAnswers);
+    this.server.emit('userChoseAnswer', {
+      userAnswer: {
+        [`${playerId}`]: game.playersData.get(playerId) || {
+          score: 0,
+          currentAnswer: answerId,
+        },
+      },
+    });
   }
 }

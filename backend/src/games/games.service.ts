@@ -45,22 +45,33 @@ export class GamesService {
       .findByIdAndUpdate(id, updateData, { new: true })
       .exec();
   }
+
   async updateCurrentPlayerAnswer(
     id: string,
     playerId: string,
     answerId: string,
-  ): Promise<Game> {
+  ): Promise<Game | void> {
     const foundGame = await this.findById(id);
     //TODO: improve
-    if (!foundGame.canAnswer) return foundGame;
-
+    if (!foundGame.canAnswer) {
+      return;
+    }
     //TODO: improve
-    if (foundGame.currentPlayersAnswers.has(playerId)) return foundGame;
+    if (foundGame.playersData.get(playerId).currentAnswer) {
+      return;
+    }
 
     return await this.gameModel
       .findByIdAndUpdate(
         id,
-        { $set: { [`currentPlayersAnswers.${playerId}`]: answerId } },
+        {
+          $set: {
+            [`playersData.${playerId}`]: {
+              score: foundGame.playersData.get(playerId).score || 0,
+              currentAnswer: answerId,
+            },
+          },
+        },
         { new: true },
       )
       .exec();

@@ -11,9 +11,6 @@ export class UpdateGameDto extends PartialType(CreateGameDto) {
   currentQuestionNumber?: number;
 
   @IsOptional()
-  currentPlayersAnswers?: Game['currentPlayersAnswers'];
-
-  @IsOptional()
   canAnswer?: Game['canAnswer'];
 
   @IsOptional()
@@ -21,4 +18,7 @@ export class UpdateGameDto extends PartialType(CreateGameDto) {
 
   @IsOptional()
   isFinished?: Game['isFinished'];
+
+  @IsOptional()
+  playersData?: Game['playersData'];
 }

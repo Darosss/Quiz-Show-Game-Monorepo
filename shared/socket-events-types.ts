@@ -1,28 +1,23 @@
 import { ManagePlayerReadiness, ManagePlayersInRoom } from "./enums";
-import { Game, Room, User } from "./types";
-
-//TODO: data in newQuestionInGame should hide isCorrect in currentQuestion and
-// answered in currentPlayersAnswers from other players
+import { Game, PlayerDataGame, Room, User } from "./types";
 
 export type ServerToClientEvents = {
   userJoinLeave: (data: UserJoinLeaveData) => void;
   userSetReady: (data: UserSetReadyData) => void;
   startGame: () => void;
-  userChoseAnswer: (
-    currentPlayersAnswers: Game["currentPlayersAnswers"]
-  ) => void;
+  userChoseAnswer: (data: UserChoseAnswerData) => void;
 
   showNewQuestionInGame: (data: ShowNewQuestionInGameData) => void;
 
   showQuestionPossibleAnswers: (
-    data: Pick<
-      Game,
-      "currentQuestion" | "currentTimer" | "canAnswer" | "currentPlayersAnswers"
-    >
+    data: Pick<Game, "currentQuestion" | "currentTimer" | "canAnswer">
   ) => void;
 
-  showCurrentQuestionAnswersInGame: (
-    data: Pick<Game, "currentQuestion" | "currentTimer">
+  showQuestionCorrectAnswersInGame: (
+    data: Pick<
+      Game,
+      "currentQuestion" | "currentTimer" | "playersData" | "canAnswer"
+    >
   ) => void;
 
   //updateGameStage: For other simpler stages
@@ -58,5 +53,9 @@ export type ChooseAnswerData = {
 export type ShowNewQuestionInGameData = {
   // Pick<Game, "currentQuestion" | "canAnswer" | "currentTimer">;
   data: Pick<Game, "canAnswer" | "currentTimer">;
-  questionText: Game["currentQuestion"]["question"];
+  questionText: string;
+};
+
+export type UserChoseAnswerData = {
+  userAnswer: { [key: string]: PlayerDataGame };
 };

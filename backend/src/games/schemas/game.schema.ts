@@ -3,6 +3,7 @@ import mongoose, { HydratedDocument, now } from 'mongoose';
 import { Room, Game as GameType, CurrentQuestionType } from 'src/shared';
 import { GameOptions } from './game-options.schema';
 import { CurrentTimer } from './current-timer.schema';
+import { PlayerData } from './player-data.schema';
 
 export type GameDocument = HydratedDocument<Game>;
 
@@ -50,8 +51,8 @@ export class Game implements GameType {
   // - answer
   // - points
 
-  @Prop({ default: new Map() })
-  currentPlayersAnswers: Map<string, string>;
+  @Prop({ type: Map<string, PlayerData>, default: new Map() })
+  playersData: Map<string, PlayerData>;
 
   @Prop({ default: now() })
   createdAt: Date;

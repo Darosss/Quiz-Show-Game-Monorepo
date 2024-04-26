@@ -2,7 +2,7 @@ import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, useEffect, useState } from "react";
 import { useRoomLobbyContext } from "./lobby/room-lobby-context";
 import { useGameSessionContext } from "./game-session-context";
-import { QuestionAnswerType } from "@/shared/types";
+import { Game, PlayerDataGame, QuestionAnswerType } from "@/shared/types";
 import { Button } from "../common";
 import { useAuthContext } from "../auth";
 import { useCountdownTimer } from "@/hooks/useCountdownTimer";
@@ -16,7 +16,7 @@ export const GamePlaying: FC = () => {
       userChoseAnswer,
       showNewQuestionInGame,
       showQuestionPossibleAnswers,
-      showCurrentQuestionAnswersInGame,
+      showQuestionCorrectAnswersInGame,
       endGame,
       updateGameStage,
     },
@@ -39,14 +39,17 @@ export const GamePlaying: FC = () => {
   }, [fetchCurrentGameSession]);
 
   useEffect(() => {
-    userChoseAnswer.on((currentPlayersAnswers) => {
+    userChoseAnswer.on(({ userAnswer }) => {
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
         return {
           ...prevState,
           data: {
             ...prevState.data,
-            currentPlayersAnswers: currentPlayersAnswers,
+            playersData: {
+              ...prevState.data.playersData,
+              ...userAnswer,
+            },
           },
         };
       });
@@ -66,7 +69,7 @@ export const GamePlaying: FC = () => {
           data: {
             ...prevState.data,
             ...data,
-            currentQuestion: { question: questionText, answers: new Map() },
+            currentQuestion: { question: questionText, answers: {} },
           },
         };
       });
@@ -90,7 +93,7 @@ export const GamePlaying: FC = () => {
   }, [showQuestionPossibleAnswers, setResponseData]);
 
   useEffect(() => {
-    showCurrentQuestionAnswersInGame.on((data) => {
+    showQuestionCorrectAnswersInGame.on((data) => {
       setShowCorrect(true);
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
@@ -98,9 +101,9 @@ export const GamePlaying: FC = () => {
       });
     });
     return () => {
-      showCurrentQuestionAnswersInGame.off();
+      showQuestionCorrectAnswersInGame.off();
     };
-  }, [showCurrentQuestionAnswersInGame, setResponseData]);
+  }, [showQuestionCorrectAnswersInGame, setResponseData]);
 
   useEffect(() => {
     endGame.on((data) => {
@@ -191,17 +194,25 @@ const GamePlayers: FC = () => {
   } = useGameSessionContext();
   return currentRoomApiData.data?.players.map((player, index) => {
     if (!currentGameSessionData.data) return null;
-    const { currentPlayersAnswers } = currentGameSessionData.data;
-    const alreadyAnswered = Object.entries(currentPlayersAnswers).find(
+    const { playersData } = currentGameSessionData.data;
+    const currentPlayerData = Object.entries(playersData).find(
       ([id]) => id === player._id
-    )?.[1] as String;
+    )?.[1] as PlayerDataGame | undefined;
 
     return (
       <div
         key={player._id}
-        style={{ background: alreadyAnswered ? "orange" : "" }}
+        className={`${styles.gamePlayersWrapper} ${
+          currentPlayerData?.currentAnswer ? styles.answered : ""
+        }`}
       >
-        {player.username}
+        <div>{player.username}</div>
+        <div>{currentPlayerData?.score}</div>
+        <div>
+          {!currentGameSessionData.data.canAnswer
+            ? currentPlayerData?.currentAnswer
+            : null}
+        </div>
       </div>
     );
   });
@@ -243,6 +254,7 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
               defaultButtonType={`${
                 showCorrect && data.isCorrect ? "success" : "primary"
               }`}
+              //TODO: remove possibilty when already choosen answer.
               onClick={() =>
                 chooseAnswer({
                   answerId: id,
