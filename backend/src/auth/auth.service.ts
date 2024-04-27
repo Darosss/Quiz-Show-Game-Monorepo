@@ -4,6 +4,7 @@ import { UsersService } from 'src/users';
 import { comparHashedString } from './auth.helpers';
 import { RegisterDto } from './dto/register.dto';
 import { User } from 'src/users/schemas/user.schema';
+import { addSecondsToDate } from 'src/shared';
 
 export type UserTokenInfo = {
   sub: string;
@@ -48,7 +49,9 @@ export class AuthService {
     };
     return {
       accessToken: await this.jwtService.signAsync(payload),
-      expirationTimeTimestamp: 123,
+      expirationTimeTimestamp: addSecondsToDate(
+        Number(process.env.ACCESS_TOKEN_EXPIRATION_SECONDS),
+      ).getTime(),
     };
   }
 

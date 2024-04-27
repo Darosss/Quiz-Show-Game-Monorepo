@@ -11,7 +11,7 @@ import { useAuthContext } from "@/components/auth";
 type LoginResponse = {
   email: string;
   accessToken: string;
-  expirationTime: string;
+  expirationTimeTimestamp: string;
 };
 
 type LoginFetchBody = {
@@ -40,9 +40,10 @@ export const LoginForm: FC = () => {
       const data = response?.data;
       if (!data) return;
       Cookies.set(COOKIE_TOKEN_NAME, data.accessToken, {
-        expires: new Date(data.expirationTime),
+        expires: new Date(data.expirationTimeTimestamp),
         sameSite: "strict",
       });
+
       setIsLoggedIn(true);
 
       router.push("/");
