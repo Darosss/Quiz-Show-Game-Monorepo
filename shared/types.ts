@@ -37,14 +37,16 @@ export type UserTokenInfo = {
   exp: number;
 };
 
-export type QuestionAnswerType = {
-  isCorrect?: boolean;
-  name: string;
+export type Question = CommonFieldTypes & {
+  question: string;
+  answers: QuestionAnswerType[];
+  category: Category;
 };
 
-export type CurrentQuestionType = {
-  question: string;
-  answers: Record<string, QuestionAnswerType>;
+export type QuestionAnswerType = {
+  id: string;
+  name: string;
+  isCorrect?: boolean;
 };
 
 export type GameOptions = {
@@ -70,7 +72,7 @@ export type PlayerDataGame = {
 
 export type Game = CommonFieldTypes & {
   room: Room;
-  currentQuestion: CurrentQuestionType | null;
+  currentQuestion: Question | null;
   currentCategory: string | null;
   canAnswer: boolean;
   currentTimer: CurrentTimerGame | null;
@@ -78,4 +80,8 @@ export type Game = CommonFieldTypes & {
   options: GameOptions;
   isFinished: boolean;
   playersData: Map<string, PlayerDataGame>;
+};
+
+export type Category = CommonFieldTypes & {
+  name: string;
 };

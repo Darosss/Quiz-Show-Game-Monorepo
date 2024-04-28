@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
-import { Room, Game as GameType, CurrentQuestionType } from 'src/shared';
+import { Room, Game as GameType, Question } from 'src/shared';
 import { GameOptions } from './game-options.schema';
 import { CurrentTimer } from './current-timer.schema';
 import { PlayerData } from './player-data.schema';
@@ -16,7 +16,7 @@ export class Game implements GameType {
 
   //TODO: this should be Question from db
   @Prop({ type: Object })
-  currentQuestion: CurrentQuestionType | null;
+  currentQuestion: Question | null;
 
   //TODO: this should be Category from db
   @Prop()

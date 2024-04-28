@@ -1,0 +1,52 @@
+.adminMenuWrapper {
+  display: flex;
+
+  & > * {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    margin: 0.5rem;
+    flex-grow: 1;
+    background: var(--primary-glow);
+  }
+}
+
+.menuWrapper {
+  display: flex;
+  flex-direction: column;
+
+  & > * {
+    display: flex;
+    align-items: center;
+    font-size: 2em;
+    margin: 0.5rem;
+    background: var(--primary-glow);
+  }
+
+  .menuButtonsWrapper {
+    min-height: 20%;
+    display: flex;
+    justify-content: space-around;
+    & > * {
+      margin: 0.5rem;
+      height: 90%;
+      flex-grow: 1;
+      font-size: 1.1em;
+    }
+  }
+
+  .currentViewWrapper {
+    min-height: 80%;
+    max-height: 80%;
+    justify-content: center;
+    font-size: 1.1em;
+
+    & > div {
+      width: 50%;
+      min-height: 80%;
+      max-height: 80%;
+      overflow: hidden;
+    }
+  }
+}

@@ -8,12 +8,14 @@ import { GamesGateway } from './games.gateway';
 import { EventsGateway } from 'src/events';
 import { GamesSessionsService } from './games-sessions.service';
 import { RoomsModule } from 'src/rooms';
+import { QuestionsModule } from 'src/questions/questions.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Game.name, schema: GameSchema }]),
     UsersModule,
     forwardRef(() => RoomsModule),
+    QuestionsModule,
   ],
   controllers: [GamesController],
   providers: [GamesService, GamesSessionsService, GamesGateway, EventsGateway],

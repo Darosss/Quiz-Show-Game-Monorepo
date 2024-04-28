@@ -1,11 +1,11 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreateGameDto } from './create-game.dto';
-import { CurrentQuestionType, Game } from 'src/shared';
+import { Question, Game } from 'src/shared';
 import { IsOptional } from 'class-validator';
 
 export class UpdateGameDto extends PartialType(CreateGameDto) {
   @IsOptional()
-  currentQuestion?: CurrentQuestionType;
+  currentQuestion?: Question;
 
   @IsOptional()
   currentQuestionNumber?: number;

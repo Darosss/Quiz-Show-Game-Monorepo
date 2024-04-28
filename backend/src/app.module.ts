@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RoomsModule } from './rooms';
 import { EventsModule } from './events/events.module';
+import { QuestionsModule } from './questions/questions.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { EventsModule } from './events/events.module';
     }),
     AuthModule,
     UsersModule,
+    QuestionsModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

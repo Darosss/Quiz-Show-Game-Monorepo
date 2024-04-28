@@ -3,7 +3,6 @@ import { GamesService } from './games.service';
 import { RoomsService } from 'src/rooms';
 import { EventsGateway } from 'src/events';
 import {
-  CurrentQuestionType,
   CurrentTimerGameStage,
   Game,
   PlayerDataGame,
@@ -12,72 +11,7 @@ import {
   wait,
 } from 'src/shared';
 import { CreateGameSessionDto } from './dto/create-game-session.dto';
-
-const temporaryQuestions: CurrentQuestionType[] = [
-  {
-    question: 'Question 1',
-    answers: {
-      '2': { name: 'True', isCorrect: true },
-      '0': { name: 'Not true' },
-      '1': { name: 'Not true 2' },
-      '3': { name: 'Not' },
-    },
-  },
-  {
-    question: 'Question 2',
-    answers: {
-      '0': { name: 'Not true' },
-      '1': { name: 'Not true 2' },
-      '3': { name: 'Not' },
-      '2': { name: 'True 2', isCorrect: true },
-    },
-  },
-  {
-    question: 'Question 3',
-    answers: {
-      '0': { name: 'Not true' },
-      '1': { name: 'Not true 2' },
-      '2': { name: 'True 3', isCorrect: true },
-      '3': { name: 'Not' },
-    },
-  },
-  {
-    question: 'Question 4',
-    answers: {
-      '0': { name: 'Not true' },
-      '1': { name: 'Not true 2' },
-      '2': { name: 'True 4', isCorrect: true },
-      '3': { name: 'Not' },
-    },
-  },
-  {
-    question: 'Question 5',
-    answers: {
-      '2': { name: 'True 5', isCorrect: true },
-      '0': { name: 'Not true' },
-      '1': { name: 'Not true 2' },
-      '3': { name: 'Not' },
-    },
-  },
-  {
-    question: 'Question 6',
-    answers: {
-      '0': { name: 'Not true' },
-      '1': { name: 'Not true 2' },
-      '3': { name: 'Not' },
-      '2': { name: 'True 6', isCorrect: true },
-    },
-  },
-  {
-    question: 'Question 7',
-    answers: {
-      '2': { name: 'True 7 1', isCorrect: true },
-      '0': { name: 'True 7 2', isCorrect: true },
-      '1': { name: 'Not true 2' },
-      '3': { name: 'Not' },
-    },
-  },
-];
+import { QuestionsService } from 'src/questions/questions.service';
 
 @Injectable()
 export class GamesSessionsService {
@@ -86,6 +20,7 @@ export class GamesSessionsService {
     private readonly gameService: GamesService,
     @Inject(forwardRef(() => RoomsService))
     private readonly roomService: RoomsService,
+    private readonly questionsService: QuestionsService,
     private readonly eventsGateway: EventsGateway,
   ) {}
 
@@ -214,7 +149,7 @@ export class GamesSessionsService {
 
     const updatedGame = await this.gameService.update(_id, {
       currentQuestionNumber: currentQuestionNumber + 1,
-      currentQuestion: temporaryQuestions[currentQuestionNumber],
+      currentQuestion: await this.questionsService.getRandomQuestion(),
       playersData: newPlayersData,
       currentTimer: {
         stage: CurrentTimerGameStage.QUESTION,
