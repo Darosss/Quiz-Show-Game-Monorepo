@@ -89,11 +89,17 @@ export class QuestionsService {
     return this.questionModel.findByIdAndDelete(id);
   }
 
-  async getRandomQuestion(): Promise<Question | undefined> {
-    const randomQuestion = await this.questionModel.aggregate<
-      Question | undefined
-    >([{ $sample: { size: 1 } }]);
+  async getRandomQuestionByCategoryId(
+    categoryId: string,
+  ): Promise<Question | undefined> {
+    const filter = { category: { _id: categoryId } };
+    const count = await this.questionModel.countDocuments(filter);
+    const randomSkip = Math.floor(Math.random() * count);
 
-    return randomQuestion.at(0);
+    const randomQuestion = await this.questionModel
+      .findOne(filter)
+      .skip(randomSkip);
+
+    return randomQuestion;
   }
 }

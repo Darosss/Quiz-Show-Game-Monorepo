@@ -51,4 +51,12 @@ export class CategoriesService {
   remove(id: string) {
     return this.categoryModel.findByIdAndDelete(id);
   }
+
+  async getRandomCategory(): Promise<Category | undefined> {
+    const randomQuestion = await this.categoryModel.aggregate<
+      Category | undefined
+    >([{ $sample: { size: 1 } }]);
+
+    return randomQuestion.at(0);
+  }
 }

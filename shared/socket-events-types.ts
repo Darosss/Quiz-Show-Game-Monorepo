@@ -51,8 +51,7 @@ export type ChooseAnswerData = {
 };
 
 export type ShowNewQuestionInGameData = {
-  // Pick<Game, "currentQuestion" | "canAnswer" | "currentTimer">;
-  data: Pick<Game, "canAnswer" | "currentTimer">;
+  data: Pick<Game, "canAnswer" | "currentTimer" | "currentCategory">;
   questionText: string;
 };
 

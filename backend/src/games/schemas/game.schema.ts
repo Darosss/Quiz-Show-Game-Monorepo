@@ -1,9 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
-import { Room, Game as GameType, Question } from 'src/shared';
+import { Room, Game as GameType, Question, Category } from 'src/shared';
 import { GameOptions } from './game-options.schema';
 import { CurrentTimer } from './current-timer.schema';
 import { PlayerData } from './player-data.schema';
+import { Question as QuestionSchema } from 'src/questions/schemas/question.schema';
+import { Category as CategorySchema } from 'src/categories/schemas/category.schema';
 
 export type GameDocument = HydratedDocument<Game>;
 
@@ -14,13 +16,11 @@ export class Game implements GameType {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Room' })
   room: Room;
 
-  //TODO: this should be Question from db
-  @Prop({ type: Object })
+  @Prop({ type: QuestionSchema })
   currentQuestion: Question | null;
 
-  //TODO: this should be Category from db
-  @Prop()
-  currentCategory: string | null;
+  @Prop({ type: CategorySchema })
+  currentCategory: Category | null;
 
   @Prop({
     type: GameOptions,
@@ -39,11 +39,6 @@ export class Game implements GameType {
 
   @Prop({ default: 0 })
   currentQuestionNumber: number;
-
-  //TODO: change this to schmea like:
-  // - playerId
-  // - answer
-  // - points
 
   @Prop({ type: Map<string, PlayerData>, default: new Map() })
   playersData: Map<string, PlayerData>;

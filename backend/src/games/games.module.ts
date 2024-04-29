@@ -9,6 +9,7 @@ import { EventsGateway } from 'src/events';
 import { GamesSessionsService } from './games-sessions.service';
 import { RoomsModule } from 'src/rooms';
 import { QuestionsModule } from 'src/questions/questions.module';
+import { CategoriesModule } from 'src/categories/categories.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { QuestionsModule } from 'src/questions/questions.module';
     UsersModule,
     forwardRef(() => RoomsModule),
     QuestionsModule,
+    CategoriesModule,
   ],
   controllers: [GamesController],
   providers: [GamesService, GamesSessionsService, GamesGateway, EventsGateway],

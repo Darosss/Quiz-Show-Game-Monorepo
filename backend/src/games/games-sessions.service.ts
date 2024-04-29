@@ -12,6 +12,7 @@ import {
 } from 'src/shared';
 import { CreateGameSessionDto } from './dto/create-game-session.dto';
 import { QuestionsService } from 'src/questions/questions.service';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class GamesSessionsService {
@@ -21,6 +22,7 @@ export class GamesSessionsService {
     @Inject(forwardRef(() => RoomsService))
     private readonly roomService: RoomsService,
     private readonly questionsService: QuestionsService,
+    private readonly categoriesService: CategoriesService,
     private readonly eventsGateway: EventsGateway,
   ) {}
 
@@ -125,7 +127,7 @@ export class GamesSessionsService {
     const updatedGame = await this.updateGameForNewQuestion(data);
     this.eventsGateway.server.to(roomCode).emit('showNewQuestionInGame', {
       data: updatedGame,
-      questionText: updatedGame.currentQuestion.question,
+      questionText: updatedGame.currentQuestion?.question,
     });
 
     await wait(updatedGame.options.timeForShowQuestionAnswersMs);
@@ -146,17 +148,22 @@ export class GamesSessionsService {
         return [id, { score: data.score } as PlayerDataGame];
       }),
     );
+    const randomCategory = await this.categoriesService.getRandomCategory();
+    const randomQuestion =
+      await this.questionsService.getRandomQuestionByCategoryId(
+        randomCategory._id,
+      );
 
     const updatedGame = await this.gameService.update(_id, {
       currentQuestionNumber: currentQuestionNumber + 1,
-      currentQuestion: await this.questionsService.getRandomQuestion(),
+      currentQuestion: randomQuestion,
+      currentCategory: randomCategory,
       playersData: newPlayersData,
       currentTimer: {
         stage: CurrentTimerGameStage.QUESTION,
         date: addSecondsToDate(options.timeForShowQuestionAnswersMs / 1000),
       },
     });
-
     return updatedGame;
   }
 

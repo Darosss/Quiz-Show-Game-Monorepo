@@ -73,7 +73,7 @@ export type PlayerDataGame = {
 export type Game = CommonFieldTypes & {
   room: Room;
   currentQuestion: Question | null;
-  currentCategory: string | null;
+  currentCategory: Category | null;
   canAnswer: boolean;
   currentTimer: CurrentTimerGame | null;
   currentQuestionNumber: number;

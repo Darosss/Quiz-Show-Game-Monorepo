@@ -252,13 +252,13 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
     return null;
   const {
     _id: gameSessionId,
+    currentCategory,
     currentQuestion: { question, answers },
   } = gameSessionData.data;
-
-  console.log(gameSessionData.data.currentQuestion, "aha");
   return (
     <div className={styles.currentQuestionWrapper}>
-      <h2>{question}</h2>
+      <h2>{currentCategory?.name}</h2>
+      <h3>{question}</h3>
       <div className={styles.answersWrapper}>
         {Object.entries(answers).map(
           ([id, data]: [string, QuestionAnswerType]) => (
@@ -279,14 +279,12 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
                 }
               }}
             >
-              {data.name}{" "}
+              {data.name}
               <div
                 className={`${styles.answerSign} 
                 ${styles[`answer${id}`]}
               `}
-              >
-                {" "}
-              </div>
+              ></div>
             </Button>
           )
         )}
