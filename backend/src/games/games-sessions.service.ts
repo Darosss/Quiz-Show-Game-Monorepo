@@ -222,9 +222,11 @@ export class GamesSessionsService {
 
       const scoreValue = madeCorrectAnswer
         ? data.options.pointsPerCorrect
-        : -data.options.pointsPerWrong;
+        : data.options.pointsPerWrong;
+
       if (playersDataInst.has(key)) {
         const previousPlayerData = playersDataInst.get(key);
+
         const newScoreValue = Math.max(
           0,
           previousPlayerData.score + scoreValue,
