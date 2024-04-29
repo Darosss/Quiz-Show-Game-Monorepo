@@ -69,7 +69,11 @@ export const GamePlaying: FC = () => {
           data: {
             ...prevState.data,
             ...data,
-            currentQuestion: { question: questionText, answers: {} },
+            currentQuestion: prevState.data.currentQuestion && {
+              ...prevState.data.currentQuestion,
+              question: questionText,
+              answers: [],
+            },
           },
         };
       });
@@ -250,6 +254,8 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
     _id: gameSessionId,
     currentQuestion: { question, answers },
   } = gameSessionData.data;
+
+  console.log(gameSessionData.data.currentQuestion, "aha");
   return (
     <div className={styles.currentQuestionWrapper}>
       <h2>{question}</h2>
