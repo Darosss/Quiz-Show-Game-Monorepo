@@ -43,14 +43,22 @@ export class GamesSessionsService {
 
     //TOOD: note temporary solution - delay 1s
     await wait(1000);
-    this.ongoingGamesTimers.set(
-      game._id,
-      await this.gameTimeout(game, restData.room.code, gameStartIn),
+
+    const gameTimeout = await this.gameTimeout(
+      game,
+      restData.room.code,
+      gameStartIn,
     );
+    gameTimeout
+      ? this.ongoingGamesTimers.set(game._id, gameTimeout)
+      : await this.gameService.remove(game._id);
     return game;
   }
 
   async gameTimeout(game: Game, roomCode: Room['code'], delay?: number) {
+    if (game.currentQuestionNumber >= game.options.questionsCount)
+      return this.handleEndGameStage(game._id, game.room._id, roomCode);
+
     this.eventsGateway.server.to(roomCode).emit('updateGameStage', game);
     return setTimeout(async () => {
       const updatedGame = await this.handleGameStages(game, roomCode);
@@ -65,8 +73,6 @@ export class GamesSessionsService {
       game,
       roomCode,
     );
-    if (game.currentQuestionNumber >= game.options.questionsCount)
-      return this.handleEndGameStage(game._id, game.room._id, roomCode);
 
     await wait(answerTimeUpdate.options.timeForAnswerMs);
 
