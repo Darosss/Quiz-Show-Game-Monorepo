@@ -1,5 +1,5 @@
 import { ManagePlayerReadiness, ManagePlayersInRoom } from "./enums";
-import { Game, PlayerDataGame, Room, User } from "./types";
+import { Game, PlayerDataGame, Question, Room, User } from "./types";
 
 export type ServerToClientEvents = {
   userJoinLeave: (data: UserJoinLeaveData) => void;
@@ -52,8 +52,13 @@ export type ChooseAnswerData = {
 
 export type ShowNewQuestionInGameData = {
   data: Pick<Game, "canAnswer" | "currentTimer" | "currentCategory">;
-  questionText: string;
+  questionData: QuestionData;
 };
+
+export type QuestionData = Pick<
+  Question,
+  "_id" | "question" | "createdAt" | "updatedAt" | "category"
+>;
 
 export type UserChoseAnswerData = {
   userAnswer: { [key: string]: PlayerDataGame };

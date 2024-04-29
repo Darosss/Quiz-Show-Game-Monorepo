@@ -127,7 +127,7 @@ export class GamesSessionsService {
     const updatedGame = await this.updateGameForNewQuestion(data);
     this.eventsGateway.server.to(roomCode).emit('showNewQuestionInGame', {
       data: updatedGame,
-      questionText: updatedGame.currentQuestion?.question,
+      questionData: updatedGame.currentQuestion,
     });
 
     await wait(updatedGame.options.timeForShowQuestionAnswersMs);

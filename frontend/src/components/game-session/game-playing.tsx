@@ -60,7 +60,7 @@ export const GamePlaying: FC = () => {
   }, [userChoseAnswer, setResponseData]);
 
   useEffect(() => {
-    showNewQuestionInGame.on(({ data, questionText }) => {
+    showNewQuestionInGame.on(({ data, questionData }) => {
       setShowCorrect(false);
       setResponseData((prevState) => {
         if (!prevState.data) return prevState;
@@ -69,11 +69,7 @@ export const GamePlaying: FC = () => {
           data: {
             ...prevState.data,
             ...data,
-            currentQuestion: prevState.data.currentQuestion && {
-              ...prevState.data.currentQuestion,
-              question: questionText,
-              answers: [],
-            },
+            currentQuestion: { ...questionData, answers: [] },
           },
         };
       });
