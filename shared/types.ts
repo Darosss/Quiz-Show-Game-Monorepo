@@ -1,4 +1,4 @@
-import { CurrentTimerGameStage, RolesUser } from "./enums";
+import { CurrentTimerGameStage, PossibleLanguages, RolesUser } from "./enums";
 
 type CommonFieldTypes = {
   _id: string;
@@ -38,16 +38,19 @@ export type UserTokenInfo = {
 };
 
 export type Question = CommonFieldTypes & {
-  question: string;
+  question: Map<PossibleLanguages, string>;
   answers: QuestionAnswerType[];
   category: Category;
+  possibleLanguages: PossibleLanguages[];
 };
 
 export type QuestionAnswerType = {
   id: string;
-  name: string;
+  name: Map<PossibleLanguages, string>;
   isCorrect?: boolean;
 };
+
+export type QuestionAnswerNameType = [];
 
 export type GameOptions = {
   questionsCount: number;
@@ -58,6 +61,8 @@ export type GameOptions = {
 
   pointsPerCorrect: number;
   pointsPerWrong: number;
+
+  language: PossibleLanguages;
 };
 
 export type CurrentTimerGame = {

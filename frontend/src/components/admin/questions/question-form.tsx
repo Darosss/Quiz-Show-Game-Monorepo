@@ -1,10 +1,17 @@
 import { Button } from "@/components/common";
-import { Question } from "@/shared/types";
+import { Question, QuestionAnswerType } from "@/shared/types";
 import { FC, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "./questions.module.scss";
-import { QuestionAnswerTypeForm, QuestionCreateBody } from "./types";
+import {
+  QuestionAnswerTypeForm,
+  QuestionCreateBody,
+  QuestionCreateBodyAnswers,
+} from "./types";
 import { CategorySelect } from "../categories/category-select";
+import { PossibleLanguages } from "@/shared/enums";
+import React from "react";
+import { validateOnSubmitQuestion } from "./question-form-validation";
 
 type QuestionFormProps = {
   onSubmit: (data: QuestionCreateBody) => void;
@@ -19,19 +26,122 @@ export const QuestionForm: FC<QuestionFormProps> = ({
   data,
   emptyAfterSubmit,
 }) => {
-  const [question, setQuestion] = useState(data?.question || "");
+  const [question, setQuestion] = useState<Map<PossibleLanguages, string>>(
+    data?.question
+      ? (new Map(Object.entries(data.question)) as Map<
+          PossibleLanguages,
+          string
+        >)
+      : new Map<PossibleLanguages, string>()
+  );
   const [answers, setAnswers] = useState<QuestionAnswerTypeForm[]>(
     data?.answers || []
   );
   const [categoryId, setCategoryId] = useState(data?.category._id || "");
+  const [possibleLanguages, setPossibleLanguages] = useState(
+    data?.possibleLanguages || [PossibleLanguages.EN]
+  );
+  const [currentLanguageFocus, setCurrentLanguageFocus] = useState(
+    possibleLanguages.at(0) || PossibleLanguages.EN
+  );
   return (
     <div className={styles.questionFormWrapper}>
+      <div>
+        <label> Languages </label>
+        <div>
+          {Object.values(PossibleLanguages).map((language) => (
+            <React.Fragment key={language}>
+              {possibleLanguages.includes(language) ? (
+                <Button
+                  onClick={() =>
+                    currentLanguageFocus !== language
+                      ? setCurrentLanguageFocus(language)
+                      : null
+                  }
+                  defaultButtonType={`${
+                    currentLanguageFocus === language ? "success" : "primary"
+                  }`}
+                >
+                  Edit {language}
+                </Button>
+              ) : (
+                <Button
+                  defaultButtonType="info"
+                  onClick={() => {
+                    setPossibleLanguages((prevState) => {
+                      prevState.push(language);
+                      const uniquePossLanguages = new Set(prevState);
+                      return Array.from(uniquePossLanguages);
+                    });
+
+                    if (answers.length > 0) {
+                      setAnswers((prevState) => {
+                        return prevState.map<QuestionAnswerTypeForm>(
+                          (answer, index) => {
+                            const previousMap = answer.name;
+                            const valueInAnotherLanguage = possibleLanguages.at(
+                              0
+                            )
+                              ? previousMap.get(possibleLanguages.at(0)!)
+                              : null;
+                            previousMap.set(
+                              language,
+                              `Change "${valueInAnotherLanguage}" to: ${language} ${index}`
+                            );
+                            return {
+                              ...answer,
+                              name: previousMap,
+                            };
+                          }
+                        );
+                      });
+                    }
+                    setCurrentLanguageFocus(language);
+                  }}
+                >
+                  Add {language}
+                </Button>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        <div>
+          {possibleLanguages.length > 1 ? (
+            <Button
+              onClick={() => {
+                setPossibleLanguages((prevState) => {
+                  return prevState.filter(
+                    (language) => language !== currentLanguageFocus
+                  );
+                });
+
+                setAnswers((prevState) =>
+                  prevState.map((answers) => {
+                    answers.name.delete(currentLanguageFocus);
+                    return answers;
+                  })
+                );
+
+                setCurrentLanguageFocus(possibleLanguages.at(0)!);
+              }}
+              defaultButtonType="danger"
+            >
+              Remove {currentLanguageFocus}
+            </Button>
+          ) : null}
+        </div>
+      </div>
       <div>
         <label> Question </label>
         <input
           type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
+          value={question.get(currentLanguageFocus) || ""}
+          onChange={(e) =>
+            setQuestion((prevState) => {
+              prevState.set(currentLanguageFocus, e.target.value);
+              return new Map(prevState);
+            })
+          }
         />
       </div>
       <div>
@@ -48,8 +158,15 @@ export const QuestionForm: FC<QuestionFormProps> = ({
           onClick={() => {
             setAnswers((prevState) => {
               const newState = [...prevState];
-              newState.push({ name: `New answer ${prevState.length}` });
+              const newNameMap: QuestionAnswerType["name"] = new Map();
+              possibleLanguages.forEach((language) => {
+                newNameMap.set(
+                  language,
+                  `New ${language} answer ${prevState.length} `
+                );
+              });
 
+              newState.push({ name: newNameMap });
               return newState;
             });
           }}
@@ -58,15 +175,27 @@ export const QuestionForm: FC<QuestionFormProps> = ({
         </Button>
         <div className={styles.answersWrapper}>
           {answers.map((answer, index) => {
+            const currentAnswerName = new Map(answer.name).get(
+              currentLanguageFocus
+            );
+            if (!currentAnswerName) return;
             return (
-              <div key={answer.name + index}>
+              <div key={index}>
                 <input
                   type="text"
-                  defaultValue={answer.name}
+                  value={currentAnswerName}
                   onChange={(e) => {
                     setAnswers((prevState) => {
-                      const newState = prevState;
-                      newState[index].name = e.target.value;
+                      const newState = [...prevState];
+                      const previousMap = prevState.find(
+                        (v, indexAnswer) => index === indexAnswer
+                      );
+                      if (!previousMap) return newState;
+                      previousMap.name.set(
+                        currentLanguageFocus,
+                        e.target.value || " "
+                      );
+                      newState[index] = previousMap;
                       return newState;
                     });
                   }}
@@ -123,17 +252,37 @@ export const QuestionForm: FC<QuestionFormProps> = ({
         <Button
           defaultButtonType="primary"
           onClick={() => {
-            if (!question) return toast.info("Question must be provided");
-            if (answers.length < 2)
-              return toast.info("There need to be at least 2 answers");
-            if (!categoryId) return toast.info("You need to set a category");
+            const { canCreate, message } = validateOnSubmitQuestion({
+              possibleLanguages,
+              question,
+              answers,
+              categoryId,
+            });
+            if (!canCreate) return toast.info(message);
 
-            onSubmit({ question, answers, categoryId });
+            const answersForCreate = answers.map<QuestionCreateBodyAnswers>(
+              (answer) => {
+                return {
+                  isCorrect: answer.isCorrect,
+                  name: Array.from(answer.name.entries()),
+                };
+              }
+            );
+
+            const questionForCreate = Array.from(question.entries());
+
+            onSubmit({
+              question: questionForCreate,
+              answers: answersForCreate,
+              categoryId,
+              possibleLanguages,
+            });
 
             if (emptyAfterSubmit) {
-              setQuestion("");
+              setQuestion(new Map());
               setAnswers([]);
               setCategoryId("");
+              setPossibleLanguages([]);
             }
           }}
         >

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { QuestionAnswerType } from 'src/shared';
+import { PossibleLanguages, QuestionAnswerType } from 'src/shared';
 
 export type AnswerDocument = HydratedDocument<Answer>;
 
@@ -12,8 +12,8 @@ export class Answer implements QuestionAnswerType {
   @Prop({ required: true })
   id: string;
 
-  @Prop({ required: true })
-  name: string;
+  @Prop({ required: true, type: Map })
+  name: Map<PossibleLanguages, string>;
 }
 
 export const AnswerSchema = SchemaFactory.createForClass(Answer);

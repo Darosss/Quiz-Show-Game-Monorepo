@@ -5,6 +5,7 @@ import { useRoomLobbyContext } from "./room-lobby-context";
 import { prettierCamelCaseName } from "@/utils/utils";
 import { Room, RoomOptions } from "@/shared/types";
 import { fetchBackendApi } from "@/api/fetch";
+import { PossibleLanguages } from "@/shared/enums";
 
 export const OwnerRoomActions: FC = () => {
   return (
@@ -79,23 +80,40 @@ const EditOptions: FC = () => {
             {Object.entries(options.gameOptions).map(([name, value]) => (
               <div key={name}>
                 <div>{prettierCamelCaseName(name)}</div>
-                <input
-                  type="number"
-                  defaultValue={value}
-                  onChange={(e) => {
-                    setOptions((prevState) => {
-                      if (!prevState) return undefined;
+                {typeof value === "number" ? (
+                  <input
+                    type="number"
+                    defaultValue={value}
+                    onChange={(e) => {
+                      setOptions((prevState) => {
+                        if (!prevState) return undefined;
 
-                      return {
-                        ...prevState,
-                        gameOptions: {
-                          ...prevState.gameOptions,
-                          [name]: e.target.valueAsNumber,
-                        },
-                      };
-                    });
-                  }}
-                />
+                        return {
+                          ...prevState,
+                          gameOptions: {
+                            ...prevState.gameOptions,
+                            [name]: e.target.valueAsNumber,
+                          },
+                        };
+                      });
+                    }}
+                  />
+                ) : (
+                  <SelectLanguage
+                    onChange={(language) =>
+                      setOptions((prevState) => {
+                        if (!prevState) return undefined;
+                        return {
+                          ...prevState,
+                          gameOptions: {
+                            ...prevState.gameOptions,
+                            language: language,
+                          },
+                        };
+                      })
+                    }
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -113,5 +131,20 @@ const EditOptions: FC = () => {
         </div>
       </div>
     </>
+  );
+};
+
+type SelectLanguageProps = {
+  onChange: (language: PossibleLanguages) => void;
+};
+const SelectLanguage: FC<SelectLanguageProps> = ({ onChange }) => {
+  return (
+    <select onChange={(e) => onChange(e.target.value as PossibleLanguages)}>
+      {Object.values(PossibleLanguages).map((language) => (
+        <option key={language} id={language}>
+          {language}
+        </option>
+      ))}
+    </select>
   );
 };

@@ -25,14 +25,15 @@
   }
 
   .menuButtonsWrapper {
-    min-height: 20%;
+    max-height: 20%;
     display: flex;
     justify-content: space-around;
-    & > * {
+
+    & > button {
       margin: 0.5rem;
-      height: 90%;
       flex-grow: 1;
       font-size: 1.1em;
+      height: 90%;
     }
   }
 
@@ -43,10 +44,7 @@
     font-size: 1.1em;
 
     & > div {
-      width: 50%;
-      min-height: 80%;
-      max-height: 80%;
-      overflow: hidden;
+      min-width: 80%;
     }
   }
 }

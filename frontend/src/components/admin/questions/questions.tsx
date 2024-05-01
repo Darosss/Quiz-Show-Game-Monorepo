@@ -31,7 +31,12 @@ export const QuestionsMenu: FC = () => {
           />
         );
       case CurrentView.EDIT:
-        return editingQuestion ? <QuestionEdit data={editingQuestion} /> : null;
+        return editingQuestion ? (
+          <QuestionEdit
+            data={editingQuestion}
+            onSuccessEdit={() => setCurrentView(CurrentView.LIST)}
+          />
+        ) : null;
       case CurrentView.CREATE:
         return <QuestionCreate />;
       default:

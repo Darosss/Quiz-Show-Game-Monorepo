@@ -57,7 +57,12 @@ export type ShowNewQuestionInGameData = {
 
 export type QuestionData = Pick<
   Question,
-  "_id" | "question" | "createdAt" | "updatedAt" | "category"
+  | "_id"
+  | "question"
+  | "createdAt"
+  | "updatedAt"
+  | "category"
+  | "possibleLanguages"
 >;
 
 export type UserChoseAnswerData = {

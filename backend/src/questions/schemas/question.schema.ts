@@ -1,6 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, now } from 'mongoose';
-import { Category, Question as QuestionType } from 'src/shared';
+import {
+  Category,
+  PossibleLanguages,
+  Question as QuestionType,
+} from 'src/shared';
 import { Answer } from './answer.schema';
 
 export type QuestionDocument = HydratedDocument<Question>;
@@ -10,7 +14,10 @@ export class Question implements QuestionType {
   _id: string;
 
   @Prop({ required: true })
-  question: string;
+  possibleLanguages: PossibleLanguages[];
+
+  @Prop({ required: true, type: Map })
+  question: Map<PossibleLanguages, string>;
 
   @Prop({ type: [Answer], default: [] })
   answers: Answer[];

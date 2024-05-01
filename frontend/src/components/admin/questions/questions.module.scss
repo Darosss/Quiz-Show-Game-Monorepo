@@ -1,11 +1,31 @@
 .questionsListWrapper {
-  width: 50%;
-  overflow-x: hidden;
-  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 95%;
+  min-height: 95%;
+  flex: 1 0 90%;
 
   .questionListHeaderWrapper,
   .questionsListData {
     justify-content: space-between;
+    align-items: center;
+    .questionName {
+      max-width: 60%;
+      min-width: 60%;
+    }
+    .questionCategory {
+      max-width: 25%;
+      min-width: 25%;
+    }
+  }
+
+  .questionTableDataWrapper {
+    max-height: inherit;
+    overflow-x: hidden;
+
+    & > div {
+      max-height: inherit;
+    }
   }
 
   .questionListHeaderWrapper {
@@ -13,10 +33,15 @@
     display: flex;
     border-bottom: 1px solid rgb(var(--info-second-rgb));
     margin-bottom: 0.2rem;
+    position: sticky;
+    top: 0;
+    background: var(--primary-glow);
+    background-color: rgb(var(--primary-second-rgb));
   }
-
   .questionsListData {
     display: flex;
+    border: 1px solid rgb(var(--secondary-second-rgb));
+    padding: 0.2rem;
   }
 }
 

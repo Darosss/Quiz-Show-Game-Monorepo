@@ -1,6 +1,6 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { GameOptions as GameOptionsType } from 'src/shared';
+import { GameOptions as GameOptionsType, PossibleLanguages } from 'src/shared';
 
 export type GameOptionsDocument = HydratedDocument<GameOptions>;
 
@@ -26,4 +26,7 @@ export class GameOptions implements GameOptionsType {
 
   @Prop({ default: -100 })
   pointsPerWrong: number;
+
+  @Prop({ enum: PossibleLanguages, default: PossibleLanguages.EN })
+  language: PossibleLanguages;
 }

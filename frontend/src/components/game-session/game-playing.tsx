@@ -66,6 +66,7 @@ export const GamePlaying: FC = () => {
         if (!prevState.data) return prevState;
         return {
           ...prevState,
+
           data: {
             ...prevState.data,
             ...data,
@@ -250,21 +251,21 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
     _id: gameSessionId,
     currentCategory,
     currentQuestion: { question, answers },
+    options: { language },
   } = gameSessionData.data;
   return (
     <div className={styles.currentQuestionWrapper}>
       <h2>{currentCategory?.name}</h2>
-      <h3>{question}</h3>
+      <h3>{new Map(Object.entries(question)).get(language)}</h3>
       <div className={styles.answersWrapper}>
         {Object.entries(answers).map(
-          ([id, data]: [string, QuestionAnswerType]) => (
+          ([id, data]: [string, QuestionAnswerType], index) => (
             <Button
-              key={id + data.name}
+              key={id + index}
               className={`${
                 showCorrect && data.isCorrect ? styles.answerCorrect : ""
               }
                 `}
-              //TODO: remove possibilty when already choosen answer.
               onClick={() => {
                 if (gameSessionData.data?.canAnswer) {
                   chooseAnswer({
@@ -275,7 +276,7 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
                 }
               }}
             >
-              {data.name}
+              {new Map(Object.entries(data.name)).get(language)}
               <div
                 className={`${styles.answerSign} 
                 ${styles[`answer${id}`]}

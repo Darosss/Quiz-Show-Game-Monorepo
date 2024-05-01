@@ -21,3 +21,8 @@ export enum CurrentTimerGameStage {
   ANSWER_TIME = "ANSWER TIME",
   QUESTION = "QUESTION",
 }
+
+export enum PossibleLanguages {
+  EN = "EN",
+  PL = "PL",
+}

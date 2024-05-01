@@ -13,7 +13,7 @@ import { OnlyIDParamDTO } from 'src/mongo';
 import { RolesAdminSuperAdminGuard } from 'src/auth';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
-import { Question } from 'src/shared';
+import { Question, QuestionAnswerType } from 'src/shared';
 import { ControllerResponseReturn } from 'src/types';
 import { CategoriesService } from 'src/categories/categories.service';
 
@@ -37,13 +37,21 @@ export class QuestionsController {
   async create(
     @Body() createData: CreateQuestionDto,
   ): Promise<ControllerResponseReturn<Question>> {
-    const { categoryId, ...rest } = createData;
+    const { categoryId, answers, ...rest } = createData;
     const category = await this.categoryService.findOne({ _id: categoryId });
     if (!category)
       throw new NotFoundException('Provided category does not exist');
-
+    const answersForService: Pick<QuestionAnswerType, 'isCorrect' | 'name'>[] =
+      answers.map((val) => {
+        const namesMap: QuestionAnswerType['name'] = new Map(val.name);
+        return { isCorrect: val.isCorrect, name: namesMap };
+      });
     return {
-      data: await this.questionsService.create({ category, ...rest }),
+      data: await this.questionsService.create({
+        category,
+        answers: answersForService,
+        ...rest,
+      }),
       message: 'Successfully created quesiton',
     };
   }
@@ -64,13 +72,21 @@ export class QuestionsController {
     @Param() { id }: OnlyIDParamDTO,
     @Body() udpateData: UpdateQuestionDto,
   ): Promise<ControllerResponseReturn<Question>> {
-    const { categoryId, ...rest } = udpateData;
+    const { categoryId, answers, ...rest } = udpateData;
     const category = categoryId
       ? await this.categoryService.findOne({ _id: categoryId })
       : undefined;
-
+    const answersForService: Pick<QuestionAnswerType, 'isCorrect' | 'name'>[] =
+      answers.map((val) => {
+        const namesMap: QuestionAnswerType['name'] = new Map(val.name);
+        return { isCorrect: val.isCorrect, name: namesMap };
+      });
     return {
-      data: await this.questionsService.update(id, { category, ...rest }),
+      data: await this.questionsService.update(id, {
+        category,
+        answers: answersForService,
+        ...rest,
+      }),
       message: 'Successfully updated the question',
     };
   }
