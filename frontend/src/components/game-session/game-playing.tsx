@@ -255,7 +255,11 @@ const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
   } = gameSessionData.data;
   return (
     <div className={styles.currentQuestionWrapper}>
-      <h2>{currentCategory?.name}</h2>
+      <h2>
+        {currentCategory
+          ? new Map(Object.entries(currentCategory.name)).get(language)
+          : null}
+      </h2>
       <h3>{new Map(Object.entries(question)).get(language)}</h3>
       <div className={styles.answersWrapper}>
         {Object.entries(answers).map(
