@@ -3,6 +3,7 @@ import { Button, FetchingInfo } from "@/components/common";
 import { useFetch } from "@/hooks/useFetch";
 import { Category } from "@/shared/types";
 import styles from "./categories.module.scss";
+import { PossibleLanguages } from "@/shared/enums";
 
 type CategoriesListProps = {
   onEdit: (category: Category) => void;
@@ -25,16 +26,22 @@ export const CategoriesList: FC<CategoriesListProps> = ({ onEdit }) => {
       <div>
         <div>Category name</div>
 
-        {responseData.data.map((category) => (
-          <div key={category._id} className={styles.categoriesListData}>
-            <div>{category.name}</div>
-            <div>
-              <Button defaultButtonType="info" onClick={() => onEdit(category)}>
-                Edit
-              </Button>
+        {responseData.data.map((category) => {
+          return (
+            <div key={category._id} className={styles.categoriesListData}>
+              {/* TODO: add here to show only from user preference or button */}
+              <div>{Object.values(category.name).at(0)}</div>
+              <div>
+                <Button
+                  defaultButtonType="info"
+                  onClick={() => onEdit(category)}
+                >
+                  Edit
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

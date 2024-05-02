@@ -1,5 +1,7 @@
+import { PossibleLanguages } from "@/shared/enums";
+
 export type CategoryCreateBody = {
-  name: string;
+  name: [PossibleLanguages, string][];
 };
 
 export type CategoryUpdateBody = Partial<CategoryCreateBody>;

@@ -6,9 +6,13 @@ import { CategoryUpdateBody } from "./types";
 
 type CategoriesEditProps = {
   data: Category;
+  onSuccessEdit: () => void;
 };
 
-export const CategoriesEdit: FC<CategoriesEditProps> = ({ data }) => {
+export const CategoriesEdit: FC<CategoriesEditProps> = ({
+  data,
+  onSuccessEdit,
+}) => {
   return (
     <div>
       <h2>Categories edit </h2>
@@ -16,13 +20,13 @@ export const CategoriesEdit: FC<CategoriesEditProps> = ({ data }) => {
       <CategoriesForm
         data={data}
         submitText="Edit"
-        onSubmit={(name) => {
+        onSubmit={(bodyData) => {
           fetchBackendApi<Category, CategoryUpdateBody>({
             url: `categories/${data._id}`,
-            body: { name },
+            body: bodyData,
             notification: { pendingText: "Trying to update a category" },
             method: "PATCH",
-          });
+          }).then((response) => (response.data ? onSuccessEdit() : null));
         }}
       />
     </div>

@@ -3,9 +3,11 @@ import { Category } from "@/shared/types";
 import { FC, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "./categories.module.scss";
+import { PossibleLanguages } from "@/shared/enums";
+import { CategoryCreateBody } from "./types";
 
 type CategoriesFormProps = {
-  onSubmit: (name: string) => void;
+  onSubmit: (data: CategoryCreateBody) => void;
   submitText: string;
   data?: Category;
   emptyAfterSubmit?: boolean;
@@ -17,27 +19,46 @@ export const CategoriesForm: FC<CategoriesFormProps> = ({
   data,
   emptyAfterSubmit,
 }) => {
-  const [name, setName] = useState(data?.name || "");
+  const [name, setName] = useState(
+    data?.name
+      ? (new Map(Object.entries(data.name)) as Map<PossibleLanguages, string>)
+      : new Map<PossibleLanguages, string>()
+  );
   return (
     <div className={styles.categoryFormWrapper}>
       <div>
         <label> Categories </label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        {Object.values(PossibleLanguages).map((language) => (
+          <div key={language}>
+            <label>{language} </label>
+            <input
+              type="text"
+              value={name.get(language) || ""}
+              onChange={(e) =>
+                setName((prevState) => {
+                  const newState = new Map(prevState);
+
+                  newState.set(language, e.target.value);
+
+                  return newState;
+                })
+              }
+            />
+          </div>
+        ))}
       </div>
       <div>
         <Button
           defaultButtonType="primary"
           onClick={() => {
             if (!name) return toast.info("Category name must be provided");
+            //TODO: add validation
             if (emptyAfterSubmit) {
-              setName("");
+              setName(new Map());
             }
 
-            onSubmit(name);
+            const namesForCreate = Array.from(name.entries());
+            onSubmit({ name: namesForCreate });
           }}
         >
           {submitText}

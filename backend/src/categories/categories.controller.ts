@@ -24,8 +24,13 @@ export class CategoriesController {
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<ControllerResponseReturn<Category>> {
+    const { name, ...rest } = createCategoryDto;
+    const namesForService = new Map(name);
     return {
-      data: await this.categoriesService.create(createCategoryDto),
+      data: await this.categoriesService.create({
+        name: namesForService,
+        ...rest,
+      }),
       message: 'Successfully created category',
     };
   }
@@ -48,8 +53,13 @@ export class CategoriesController {
     @Param() { id }: OnlyIDParamDTO,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ): Promise<ControllerResponseReturn<Category>> {
+    const { name, ...rest } = updateCategoryDto;
+    const namesForService = new Map(name);
     return {
-      data: await this.categoriesService.update(id, updateCategoryDto),
+      data: await this.categoriesService.update(id, {
+        name: namesForService,
+        ...rest,
+      }),
       message: 'Successfully updated category',
     };
   }

@@ -2,6 +2,7 @@ import { FC } from "react";
 import { FetchingInfo } from "@/components/common";
 import { useFetch } from "@/hooks/useFetch";
 import { Category } from "@/shared/types";
+import { PossibleLanguages } from "@/shared/enums";
 
 type CategorySelectProps = {
   onSelect: (categoryId: string) => void;
@@ -28,7 +29,7 @@ export const CategorySelect: FC<CategorySelectProps> = ({
     >
       {responseData.data.map((category) => (
         <option key={category._id} value={category._id}>
-          {category.name}
+          {new Map(Object.entries(category.name)).get(PossibleLanguages.EN)}
         </option>
       ))}
 

@@ -32,7 +32,10 @@ export const CategoriesMenu: FC = () => {
         );
       case CurrentView.EDIT:
         return editingCategories ? (
-          <CategoriesEdit data={editingCategories} />
+          <CategoriesEdit
+            data={editingCategories}
+            onSuccessEdit={() => setCurrentView(CurrentView.LIST)}
+          />
         ) : null;
       case CurrentView.CREATE:
         return <CategoriesCreate />;

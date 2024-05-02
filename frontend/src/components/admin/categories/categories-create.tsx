@@ -10,10 +10,10 @@ export const CategoriesCreate: FC = () => {
       <h2>Categories create</h2>
 
       <CategoriesForm
-        onSubmit={(name) => {
+        onSubmit={(data) => {
           fetchBackendApi<Category, CategoryCreateBody>({
             url: "categories/create",
-            body: { name },
+            body: data,
             notification: { pendingText: "Trying to create a category" },
             method: "POST",
           });

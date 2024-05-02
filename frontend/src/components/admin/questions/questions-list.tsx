@@ -50,6 +50,9 @@ export const QuestionsList: FC<QuestionsListProps> = ({ onEdit }) => {
             ).get(currentLanguageFocus);
 
             if (!mappedQuestions) return;
+            const mappedCategory = new Map(
+              Object.entries(question.category.name)
+            );
             return (
               <div key={question._id} className={styles.questionsListData}>
                 <div className={styles.questionName}>
@@ -58,7 +61,7 @@ export const QuestionsList: FC<QuestionsListProps> = ({ onEdit }) => {
                   )}
                 </div>
                 <div className={styles.questionCategory}>
-                  {question.category.name}
+                  {mappedCategory.get(PossibleLanguages.EN)}
                 </div>
                 <div>
                   <Button

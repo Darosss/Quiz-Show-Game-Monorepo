@@ -88,5 +88,5 @@ export type Game = CommonFieldTypes & {
 };
 
 export type Category = CommonFieldTypes & {
-  name: string;
+  name: Map<PossibleLanguages, string>;
 };

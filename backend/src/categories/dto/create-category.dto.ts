@@ -1,6 +1,9 @@
-import { IsString } from 'class-validator';
+import { PossibleLanguages } from 'src/shared';
 
 export class CreateCategoryDto {
-  @IsString()
-  name: string;
+  name: [PossibleLanguages, string][];
+}
+
+export class CreateCategoryServiceDto {
+  name: Map<PossibleLanguages, string>;
 }

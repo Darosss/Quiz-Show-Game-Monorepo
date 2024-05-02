@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateCategoryServiceDto } from './dto/create-category.dto';
+import { UpdateCategoryServiceDto } from './dto/update-category.dto';
 import { Category } from 'src/shared';
 import { FilterQuery, Model, ProjectionType } from 'mongoose';
 import { Category as CategorySchema } from './schemas/category.schema';
@@ -16,7 +16,7 @@ export class CategoriesService {
     private categoryModel: Model<Category>,
   ) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
+  create(createCategoryDto: CreateCategoryServiceDto) {
     const createdCategory = new this.categoryModel(createCategoryDto);
 
     return createdCategory.save();
@@ -42,7 +42,7 @@ export class CategoriesService {
     return foundQuestion;
   }
 
-  update(id: string, updateCategoryDto: UpdateCategoryDto) {
+  update(id: string, updateCategoryDto: UpdateCategoryServiceDto) {
     return this.categoryModel
       .findByIdAndUpdate(id, updateCategoryDto, { new: true })
       .exec();
