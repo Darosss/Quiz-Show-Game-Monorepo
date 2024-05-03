@@ -1,9 +1,29 @@
 .baseRoomActionsWrapper {
   display: flex;
-  flex-direction: column;
   width: 100%;
-  .baseRoomActionsContent {
-    display: flex;
-    justify-content: center;
+  min-height: 100%;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.joinRoomWrapper,
+.createRoomWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  form {
+    div > label,
+    div > input {
+      padding: 0.5rem;
+    }
+
+    & > * {
+      padding: 0.5rem;
+    }
+    button {
+      width: 100%;
+    }
   }
 }

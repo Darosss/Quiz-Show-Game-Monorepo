@@ -3,6 +3,7 @@ import { Button } from "../common";
 import { fetchBackendApi } from "@/api/fetch";
 import { useRouter } from "next/navigation";
 import { Room } from "@/shared/index";
+import styles from "./styles.module.scss";
 
 type JoinRoomResponse = Room;
 
@@ -28,7 +29,7 @@ export const JoinRoomView: FC = () => {
     });
   };
   return (
-    <div>
+    <div className={styles.joinRoomWrapper}>
       <h2>Join to room</h2>
       <form onSubmit={handleSubmit}>
         <div>

@@ -2,6 +2,7 @@ import { FC, FormEvent } from "react";
 import { Button } from "../common";
 import { fetchBackendApi } from "@/api/fetch";
 import { useRouter } from "next/navigation";
+import styles from "./styles.module.scss";
 type CreateRoomResponse = any;
 
 type CreateRoomFetchBody = { name: string };
@@ -28,7 +29,7 @@ export const CreateRoomView: FC = () => {
     });
   };
   return (
-    <div>
+    <div className={styles.createRoomWrapper}>
       <h2>Create room</h2>
 
       <div>
