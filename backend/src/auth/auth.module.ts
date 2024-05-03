@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { RolesGuard } from './roles.guard';
+import ms from 'ms';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { RolesGuard } from './roles.guard';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get('ACCESS_TOKEN_EXPIRATION_SECONDS'),
+          expiresIn: ms(process.env.ACCESS_TOKEN_EXPIRATION_MS),
         },
       }),
     }),

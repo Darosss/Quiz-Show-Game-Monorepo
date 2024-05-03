@@ -50,7 +50,7 @@ export class AuthService {
     return {
       accessToken: await this.jwtService.signAsync(payload),
       expirationTimeTimestamp: addSecondsToDate(
-        Number(process.env.ACCESS_TOKEN_EXPIRATION_SECONDS),
+        Number(process.env.ACCESS_TOKEN_EXPIRATION_MS) / 1000,
       ).getTime(),
     };
   }

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from './decorators';
 import { JWT_SECRET } from 'src/configs';
 
@@ -34,7 +34,12 @@ export class AuthGuard implements CanActivate {
         secret: JWT_SECRET,
       });
       request['user'] = payload;
-    } catch {
+    } catch (err) {
+      if (err instanceof TokenExpiredError)
+        throw new UnauthorizedException(
+          `${err.message} expired at: ${err.expiredAt.toUTCString()}`,
+        );
+
       throw new UnauthorizedException(UNAUTHORIZED_ERROR_MESSAGE);
     }
     return true;
