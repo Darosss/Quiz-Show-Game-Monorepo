@@ -64,7 +64,7 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
   useEffect(() => {
     userJoinLeave.on(({ user: userData, updatedRoomData, action }) => {
       setResponseData((prevState) => {
-        if (!prevState.data) return prevState;
+        if (!prevState.data || !updatedRoomData?.players) return prevState;
         const newState = {
           ...prevState,
           data: {
