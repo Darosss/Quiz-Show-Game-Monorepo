@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import styles from "./categories.module.scss";
 import { PossibleLanguages } from "@/shared/enums";
 import { CategoryCreateBody } from "./types";
+import { validateOnSubmitCategory } from "./categories-form-validation";
 
 type CategoriesFormProps = {
   onSubmit: (data: CategoryCreateBody) => void;
@@ -24,6 +25,7 @@ export const CategoriesForm: FC<CategoriesFormProps> = ({
       ? (new Map(Object.entries(data.name)) as Map<PossibleLanguages, string>)
       : new Map<PossibleLanguages, string>()
   );
+
   return (
     <div className={styles.categoryFormWrapper}>
       <div>
@@ -51,8 +53,10 @@ export const CategoriesForm: FC<CategoriesFormProps> = ({
         <Button
           defaultButtonType="primary"
           onClick={() => {
-            if (!name) return toast.info("Category name must be provided");
-            //TODO: add validation
+            const { canCreate, message } = validateOnSubmitCategory({
+              name,
+            });
+            if (!canCreate) return toast.info(message);
             if (emptyAfterSubmit) {
               setName(new Map());
             }
