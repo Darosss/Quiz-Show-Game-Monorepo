@@ -2,7 +2,7 @@
 import { FC, useEffect, useMemo } from "react";
 import { NoCurrentGame } from "./no-current-game";
 import { RoomLobby } from "./lobby/room-lobby";
-import { GamePlaying } from "./game-playing";
+import { GamePlaying } from "./game/game-playing";
 import { useRoomLobbyContext } from "./lobby/room-lobby-context";
 
 export const CurrentGame: FC = () => {

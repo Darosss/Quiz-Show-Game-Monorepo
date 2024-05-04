@@ -1,13 +1,12 @@
 import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, useEffect, useState } from "react";
-import { useRoomLobbyContext } from "./lobby/room-lobby-context";
-import { useGameSessionContext } from "./game-session-context";
-import { PlayerDataGame, QuestionAnswerType } from "@/shared/types";
-import { Button } from "../common";
-import { useAuthContext } from "../auth";
-import { useCountdownTimer } from "@/hooks/useCountdownTimer";
-import { formatTime } from "@/utils/utils";
+import { useRoomLobbyContext } from "../lobby/room-lobby-context";
+import { useGameSessionContext } from "../game-session-context";
 import styles from "./game-playing.module.scss";
+import { Button } from "../../common";
+import { GamePlayers } from "./game-players";
+import { GameTimers } from "./game-timers";
+import { CurrentQuestion } from "./current-question";
 
 export const GamePlaying: FC = () => {
   const [showCorrect, setShowCorrect] = useState(false);
@@ -159,137 +158,6 @@ export const GamePlaying: FC = () => {
           </Button>
         </>
       )}
-    </div>
-  );
-};
-
-const GameTimers: FC = () => {
-  const {
-    currentGameSessionApi: {
-      api: { responseData: currentGameSessionData },
-    },
-  } = useGameSessionContext();
-  const { remainingTime } = useCountdownTimer({
-    toTimestamp: currentGameSessionData.data?.currentTimer?.date?.toString(),
-  });
-
-  return (
-    <div>
-      {remainingTime && currentGameSessionData.data?.currentTimer?.stage
-        ? `${currentGameSessionData.data.currentTimer.stage}: ${formatTime(
-            remainingTime
-          )}`
-        : null}
-    </div>
-  );
-};
-
-const GamePlayers: FC = () => {
-  const {
-    currentRoomApi: {
-      api: { responseData: currentRoomApiData, setResponseData },
-    },
-  } = useRoomLobbyContext();
-
-  const {
-    currentGameSessionApi: {
-      api: { responseData: currentGameSessionData },
-    },
-  } = useGameSessionContext();
-  return currentRoomApiData.data?.players.map((player, index) => {
-    if (!currentGameSessionData.data) return null;
-    const { playersData } = currentGameSessionData.data;
-    const currentPlayerData = Object.entries(playersData).find(
-      ([id]) => id === player._id
-    )?.[1] as PlayerDataGame | undefined;
-
-    const showUserAnswer =
-      currentPlayerData?.currentAnswer &&
-      !currentGameSessionData.data.canAnswer;
-    const userAnswered = !!currentPlayerData?.currentAnswer;
-    return (
-      <div
-        key={player._id}
-        className={`${styles.gamePlayersWrapper}
-        ${
-          showUserAnswer
-            ? styles[`answer${currentPlayerData.currentAnswer}`]
-            : userAnswered
-            ? styles.answered
-            : ""
-        }`}
-      >
-        <div>{player.username}</div>
-        <div>{currentPlayerData?.score}</div>
-      </div>
-    );
-  });
-};
-
-type CurrentQuestionProps = {
-  showCorrect: boolean;
-};
-
-const CurrentQuestion: FC<CurrentQuestionProps> = ({ showCorrect }) => {
-  const {
-    apiUser: {
-      api: { data: authData },
-    },
-  } = useAuthContext();
-  const {
-    currentGameSessionApi: {
-      api: { responseData: gameSessionData },
-    },
-  } = useGameSessionContext();
-
-  const {
-    emits: { chooseAnswer },
-  } = useSocketEventsContext();
-  if (!gameSessionData.data || !gameSessionData.data?.currentQuestion)
-    return null;
-  const {
-    _id: gameSessionId,
-    currentCategory,
-    currentQuestion: { question, answers },
-    options: { language },
-  } = gameSessionData.data;
-  return (
-    <div className={styles.currentQuestionWrapper}>
-      <h2>
-        {currentCategory
-          ? new Map(Object.entries(currentCategory.name)).get(language)
-          : null}
-      </h2>
-      <h3>{new Map(Object.entries(question)).get(language)}</h3>
-      <div className={styles.answersWrapper}>
-        {Object.entries(answers).map(
-          ([id, data]: [string, QuestionAnswerType], index) => (
-            <Button
-              key={id + index}
-              className={`${
-                showCorrect && data.isCorrect ? styles.answerCorrect : ""
-              }
-                `}
-              onClick={() => {
-                if (gameSessionData.data?.canAnswer) {
-                  chooseAnswer({
-                    answerId: id,
-                    playerId: authData.sub,
-                    gameId: gameSessionId,
-                  });
-                }
-              }}
-            >
-              {new Map(Object.entries(data.name)).get(language)}
-              <div
-                className={`${styles.answerSign} 
-                ${styles[`answer${id}`]}
-              `}
-              ></div>
-            </Button>
-          )
-        )}
-      </div>
     </div>
   );
 };
