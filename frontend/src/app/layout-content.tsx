@@ -6,6 +6,7 @@ import styles from "./layout.module.scss";
 import { FC, ReactNode } from "react";
 import { GameSessionContextProvider } from "@/components/game-session";
 import { SocketEventsContextProvider } from "../socket-events";
+import { UserDetails } from "@/components/user";
 
 type LayoutContentProps = {
   children: ReactNode;
@@ -18,7 +19,7 @@ export const LayoutContent: FC<LayoutContentProps> = ({ children }) => {
         <GameSessionContextProvider>
           <Navigation />
           <div className={styles.userDetailsWrapper}>
-            <>User details soon </>
+            <UserDetails />
           </div>
           <ToastContainer />
           <div className={styles.contentWrapper}>{children}</div>
