@@ -86,7 +86,7 @@ export const QuestionForm: FC<QuestionFormProps> = ({
                               : null;
                             previousMap.set(
                               language,
-                              `Change "${valueInAnotherLanguage}" to: ${language} ${index}`
+                              valueInAnotherLanguage || `Answer ${index}`
                             );
                             return {
                               ...answer,
