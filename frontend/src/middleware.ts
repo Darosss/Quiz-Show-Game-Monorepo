@@ -17,5 +17,5 @@ export function middleware(request: NextRequest) {
   }
 }
 export const config = {
-  matcher: ["/skirmishes", "/", "/auth/login", "/auth/register"],
+  matcher: ["/auth/login", "/auth/register"],
 };
