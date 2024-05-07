@@ -4,14 +4,7 @@ import { UsersService } from 'src/users';
 import { comparHashedString } from './auth.helpers';
 import { RegisterDto } from './dto/register.dto';
 import { User } from 'src/users/schemas/user.schema';
-import { addSecondsToDate } from 'src/shared';
-
-export type UserTokenInfo = {
-  sub: string;
-  username: string;
-  iat: number;
-  exp: number;
-};
+import { UserTokenInfo, addSecondsToDate } from 'src/shared';
 
 export type SignInReturnType = {
   accessToken: string;

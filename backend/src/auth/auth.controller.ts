@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Request, Post, Headers } from '@nestjs/common';
-import { AuthService, SignInReturnType, UserTokenInfo } from './auth.service';
+import { AuthService, SignInReturnType } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './decorators';
 import { RegisterDto } from './dto/register.dto';
 import { ControllerResponseReturn } from 'src/types';
 import { User } from 'src/users';
+import { UserTokenInfo } from 'src/shared';
 
 type StatusResponseType = {
   authenticated: boolean;
@@ -60,7 +61,6 @@ export class AuthController {
     const isValidToken = await this.authService.verifyToken(onlyToken);
     if (isValidToken) {
       const user = await this.authService.extractUserInfoFromToken(onlyToken);
-
       return { authenticated: true, tokenInfo: user };
     } else {
       return { authenticated: false };
