@@ -35,6 +35,7 @@ export type UserTokenInfo = {
   username: string;
   iat: number;
   exp: number;
+  roles: RolesUser[];
 };
 
 export type Question = CommonFieldTypes & {
