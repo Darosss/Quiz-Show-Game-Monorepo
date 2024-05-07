@@ -148,7 +148,7 @@ export const QuestionForm: FC<QuestionFormProps> = ({
         <label> Category </label>
         <CategorySelect
           onSelect={(categoryId) => setCategoryId(categoryId)}
-          defaultValue={data?.category._id}
+          defaultValue={categoryId}
         />
       </div>
       <div>

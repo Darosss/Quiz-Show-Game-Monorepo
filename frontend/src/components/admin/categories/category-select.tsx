@@ -25,7 +25,7 @@ export const CategorySelect: FC<CategorySelectProps> = ({
   return (
     <select
       onChange={(e) => onSelect(e.currentTarget.value)}
-      defaultValue={defaultValue || ""}
+      value={defaultValue || ""}
     >
       {responseData.data.map((category) => (
         <option key={category._id} value={category._id}>
