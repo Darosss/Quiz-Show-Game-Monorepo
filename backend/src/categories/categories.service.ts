@@ -52,11 +52,11 @@ export class CategoriesService {
     return this.categoryModel.findByIdAndDelete(id);
   }
 
-  async getRandomCategory(): Promise<Category | undefined> {
+  async getRandomCategory(): Promise<Category | void> {
     const randomQuestion = await this.categoryModel.aggregate<
       Category | undefined
     >([{ $sample: { size: 1 } }]);
 
-    return randomQuestion.at(0);
+    if (randomQuestion.length > 0) return randomQuestion.at(0);
   }
 }

@@ -74,6 +74,9 @@ export class GamesSessionsService {
       roomCode,
     );
 
+    if (!answerTimeUpdate)
+      return this.handleEndGameStage(game._id, game.room._id, game.room.code);
+
     await wait(answerTimeUpdate.options.timeForAnswerMs);
 
     const correctAnswersUpdate = await this.handleShowCorrectAnswersStage(
@@ -126,11 +129,14 @@ export class GamesSessionsService {
   private async handleQuestionLogicStage(
     data: Pick<
       Game,
-      '_id' | 'currentQuestionNumber' | 'options' | 'playersData'
+      '_id' | 'currentQuestionNumber' | 'options' | 'playersData' | 'room'
     >,
     roomCode: Room['code'],
-  ) {
+  ): Promise<Game | void> {
     const updatedGame = await this.updateGameForNewQuestion(data);
+
+    if (!updatedGame) return;
+
     this.eventsGateway.server.to(roomCode).emit('showNewQuestionInGame', {
       data: updatedGame,
       questionData: updatedGame.currentQuestion,
@@ -146,7 +152,7 @@ export class GamesSessionsService {
       Game,
       '_id' | 'currentQuestionNumber' | 'options' | 'playersData'
     >,
-  ) {
+  ): Promise<Game | void> {
     const { _id, currentQuestionNumber, options, playersData } = data;
 
     const newPlayersData = new Map(
@@ -155,6 +161,10 @@ export class GamesSessionsService {
       }),
     );
     const randomCategory = await this.categoriesService.getRandomCategory();
+    //TODO: note - thats temporary solution till I do choosing category etc, etc
+    //Also ensure that game has at least some questions in each category etc..
+    if (!randomCategory) return;
+
     const randomQuestion =
       await this.questionsService.getRandomQuestionByCategoryId(
         randomCategory._id,
