@@ -3,6 +3,7 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { MongooseError } from 'mongoose';
@@ -54,7 +55,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         statusCode: 400,
       };
     }
-    console.error(exception, 'debug');
+    Logger.error(JSON.stringify(exception));
 
     httpAdapter.reply(ctx.getResponse(), this.response, this.statusCode);
   }
