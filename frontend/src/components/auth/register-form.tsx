@@ -5,7 +5,7 @@ import { FC, FormEvent } from "react";
 import { fetchBackendApi } from "@/api/fetch";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/common";
-import { User } from "@/api/types";
+import { User } from "@/shared/types";
 
 type LoginResponse = User;
 
