@@ -1,0 +1,24 @@
+.speechOptionsWrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+
+  .toggleButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .speechSettings {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: var(--primary-glow);
+    background-color: rgb(var(--primary-second-rgb));
+  }
+
+  .settingsOptions {
+    display: flex;
+    flex-direction: column;
+  }
+}

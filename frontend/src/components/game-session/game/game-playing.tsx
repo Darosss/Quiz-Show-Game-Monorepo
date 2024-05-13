@@ -1,5 +1,5 @@
-import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, useEffect, useState } from "react";
+import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { useRoomLobbyContext } from "../lobby/room-lobby-context";
 import { useGameSessionContext } from "../game-session-context";
 import styles from "./game-playing.module.scss";
@@ -7,6 +7,7 @@ import { Button } from "../../common";
 import { GamePlayers } from "./game-players";
 import { GameTimers } from "./game-timers";
 import { CurrentQuestion } from "./current-question";
+import { GameSpeech } from "./game-speech";
 
 export const GamePlaying: FC = () => {
   const [showCorrect, setShowCorrect] = useState(false);
@@ -133,6 +134,9 @@ export const GamePlaying: FC = () => {
 
   return (
     <div className={styles.gamePlayingWrapper}>
+      <div className={styles.speechOptions}>
+        <GameSpeech />
+      </div>
       {!responseData.data.isFinished ? (
         <div className={styles.gameDetailsWrapper}>
           <div className={styles.timer}>

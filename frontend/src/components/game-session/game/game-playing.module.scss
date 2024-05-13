@@ -13,8 +13,18 @@ $playerAnswered: #3b0764;
 .gamePlayingWrapper {
   display: flex;
   flex-direction: column;
-  border: 1px solid yellow;
   align-items: center;
+  position: relative;
+
+  .speechOptions {
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+  }
 
   .gameDetailsWrapper {
     display: grid;
@@ -77,7 +87,6 @@ $playerAnswered: #3b0764;
             max-width: 40%;
             min-width: 40%;
             position: relative;
-
             .answerSign {
               position: absolute;
               right: 2%;
