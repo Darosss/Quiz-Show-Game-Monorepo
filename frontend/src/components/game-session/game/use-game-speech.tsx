@@ -59,6 +59,18 @@ export const useQuestionSpeech =
             ) as string
         );
         utterance.text = answersText.join(", ");
+      } else if (stage === CurrentTimerGameStage.QUESTION_RESULT) {
+        const answers = gameSessionData.data?.currentQuestion?.answers;
+
+        const correctAnswerText = answers?.find((val) => val.isCorrect);
+
+        utterance.text = correctAnswerText
+          ? stage +
+            " - " +
+            (new Map(Object.entries(correctAnswerText.name)).get(
+              gameSessionData.data?.options.language || PossibleLanguages.EN
+            ) as string)
+          : "";
       } else if (stage) {
         utterance.text = stage;
       }
