@@ -134,33 +134,36 @@ export const GamePlaying: FC = () => {
 
   return (
     <div className={styles.gamePlayingWrapper}>
-      <div className={styles.speechOptions}>
-        <GameSpeech />
-      </div>
       {!responseData.data.isFinished ? (
-        <div className={styles.gameDetailsWrapper}>
-          <div className={styles.timer}>
-            <GameTimers />
-          </div>
-          <div className={styles.players}>
-            <GamePlayers />
-          </div>
-          <div className={styles.gameDetails}>
-            <CurrentQuestion showCorrect={showCorrect} />
-          </div>
-        </div>
-      ) : (
         <>
+          <div className={styles.speechOptions}>
+            <GameSpeech />
+          </div>
+          <div className={styles.gameDetailsWrapper}>
+            <div className={styles.timer}>
+              <GameTimers />
+            </div>
+            <div className={styles.players}>
+              <GamePlayers />
+            </div>
+            <div className={styles.gameDetails}>
+              <CurrentQuestion showCorrect={showCorrect} />
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className={styles.gameResultWrapper}>
           <h2>Game is finished. TODO: Match results or redirect</h2>
           <Button
             onClick={() => {
               clearGameSessionCache();
               fetchRoomLobbyData();
             }}
+            defaultButtonType="info"
           >
             Back to room lobby
           </Button>
-        </>
+        </div>
       )}
     </div>
   );
