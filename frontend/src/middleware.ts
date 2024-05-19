@@ -10,12 +10,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   else if (!token && (path === "/auth/login" || path === "/auth/register"))
     return;
-  else if (token) {
-    return;
-  } else {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
-  }
+  else if (token) return;
+  else return NextResponse.redirect(new URL("/auth/login", request.url));
 }
 export const config = {
-  matcher: ["/auth/login", "/auth/register"],
+  matcher: ["/((?!api|_next/static|_next/image|images|favicon.ico).*)"],
 };
