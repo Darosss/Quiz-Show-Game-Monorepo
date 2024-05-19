@@ -4,6 +4,7 @@ import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
 import { FC, createContext, useContext } from "react";
 import { RoomLobbyContextProvider } from "./lobby/room-lobby-context";
 import { Game } from "@/shared/types";
+import { useAuthContext } from "../auth";
 
 type CurrentGameSessionResponseType = Game;
 type GameSessionContextProviderProps = {
@@ -24,10 +25,14 @@ export const GameSessionContext = createContext<GameSessionContextType | null>(
 export const GameSessionContextProvider: FC<
   GameSessionContextProviderProps
 > = ({ children }) => {
-  const currentGameSessionApi = useFetch<CurrentGameSessionResponseType>({
-    url: "games/current-game-session",
-    method: "GET",
-  });
+  const { isLoggedIn } = useAuthContext();
+  const currentGameSessionApi = useFetch<CurrentGameSessionResponseType>(
+    {
+      url: "games/current-game-session",
+      method: "GET",
+    },
+    { manual: !isLoggedIn }
+  );
 
   return (
     <GameSessionContext.Provider value={{ currentGameSessionApi }}>

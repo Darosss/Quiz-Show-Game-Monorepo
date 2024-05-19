@@ -62,12 +62,13 @@ export const AuthContextProvider: FC<AuthContextProps> = ({ children }) => {
     setIsLoggedIn(!!authCookie);
   }, [authCookie]);
 
+  //TODO: DO i need that?
   useEffect(() => {
     if (!authCookie && !isLoggedIn && pathname !== "/auth/login") {
       clearCache();
       toast.info("Log in to visit that site");
       router.replace("/auth/login");
-    } else {
+    } else if (authCookie) {
       fetchUserData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

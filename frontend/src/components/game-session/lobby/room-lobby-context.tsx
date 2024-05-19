@@ -21,10 +21,14 @@ export const RoomLobbyContext = createContext<RoomLobbyContextType | null>(
 export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
   children,
 }) => {
-  const currentRoomApi = useFetch<CurrentRoomResponseType>({
-    url: "rooms/current-room",
-    method: "GET",
-  });
+  const { isLoggedIn, apiUser } = useAuthContext();
+  const currentRoomApi = useFetch<CurrentRoomResponseType>(
+    {
+      url: "rooms/current-room",
+      method: "GET",
+    },
+    { manual: !isLoggedIn }
+  );
   const {
     api: { responseData, setResponseData },
     fetchData: fetchCurrentRoom,
@@ -38,7 +42,6 @@ export const RoomLobbyContextProvider: FC<RoomLobbyContextProvider> = ({
   const {
     currentGameSessionApi: { fetchData: fetchGameSession },
   } = useGameSessionContext();
-  const { apiUser } = useAuthContext();
 
   const isOwner = useMemo(
     () => apiUser.api.data.sub === responseData.data?.owner._id,
