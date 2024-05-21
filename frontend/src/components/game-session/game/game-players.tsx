@@ -31,14 +31,19 @@ export const GamePlayers: FC = () => {
       <div
         key={player._id}
         className={`${styles.gamePlayersWrapper}
+        ${userAnswered ? styles.answered : ""}`}
+      >
+        <div
+          className={`${styles.indicatorAnswer}
         ${
           showUserAnswer
             ? styles[`answer${currentPlayerData.currentAnswer}`]
-            : userAnswered
-            ? styles.answered
             : ""
-        }`}
-      >
+        }
+        `}
+        >
+          {" "}
+        </div>
         <div>{player.username}</div>
         <div>{currentPlayerData?.score}</div>
       </div>

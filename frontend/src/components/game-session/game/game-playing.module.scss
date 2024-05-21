@@ -8,7 +8,6 @@ $answer6: #d946ef;
 $answer7: #f43f5e;
 $answer8: #f0abfc;
 $answerCorrect: #16a34a;
-$playerAnswered: #3b0764;
 
 .gamePlayingWrapper {
   display: flex;
@@ -38,7 +37,9 @@ $playerAnswered: #3b0764;
       "TIMER TIMER"
       "GAME-DETAILS PLAYERS";
     & > div {
-      border: 1px solid red;
+      box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+        rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+        rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
       max-width: 100%;
       min-width: 100%;
       height: 100%;
@@ -57,10 +58,21 @@ $playerAnswered: #3b0764;
       .gamePlayersWrapper {
         display: flex;
         justify-content: space-around;
+        position: relative;
+
+        .indicatorAnswer {
+          width: 5%;
+          min-height: 50%;
+          border-radius: 0.5rem;
+          position: absolute;
+          right: 2%;
+        }
       }
 
       & > div {
-        border: 1px solid red;
+        padding: 0.5rem 0;
+        box-shadow: rgba(var(--primary-second-rgb), 0.25) 0px 30px 60px -12px inset,
+          rgba(var(--primary-first-rgb), 0.25) 0px 18px 36px -18px inset;
       }
     }
 
@@ -132,5 +144,6 @@ $playerAnswered: #3b0764;
 }
 
 .answered {
-  background: $playerAnswered;
+  box-shadow: rgba(var(--info-second-rgb), 0.25) 0px 30px 60px -12px inset,
+    rgba(var(--info-first-rgb), 0.25) 0px 18px 36px -18px inset !important;
 }
