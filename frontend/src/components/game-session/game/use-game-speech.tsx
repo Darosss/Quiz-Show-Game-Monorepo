@@ -65,8 +65,7 @@ export const useQuestionSpeech =
         const correctAnswerText = answers?.find((val) => val.isCorrect);
 
         utterance.text = correctAnswerText
-          ? stage +
-            " - " +
+          ? "Correct answer is - " +
             (new Map(Object.entries(correctAnswerText.name)).get(
               gameSessionData.data?.options.language || PossibleLanguages.EN
             ) as string)
