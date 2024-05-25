@@ -31,7 +31,7 @@ export class AuthService {
       );
     }
 
-    if (!comparHashedString(password, user.password)) {
+    if (!(await comparHashedString(password, user.password))) {
       throw new UnauthorizedException('Wrong password');
     }
 
