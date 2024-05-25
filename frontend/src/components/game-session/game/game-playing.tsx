@@ -156,8 +156,8 @@ export const GamePlaying: FC = () => {
           <h2>Game is finished. TODO: Match results or redirect</h2>
           <Button
             onClick={() => {
-              clearGameSessionCache();
               fetchRoomLobbyData();
+              clearGameSessionCache();
             }}
             defaultButtonType="info"
           >
