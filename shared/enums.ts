@@ -20,6 +20,7 @@ export enum CurrentTimerGameStage {
   NEW_QUESTION = "NEW QUESTION",
   ANSWER_TIME = "ANSWER TIME",
   QUESTION = "QUESTION",
+  GAME_ENDING = "GAME ENDING",
 }
 
 export enum PossibleLanguages {

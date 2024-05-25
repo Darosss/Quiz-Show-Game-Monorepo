@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { GameOptions, Room } from 'src/shared';
 
 export class CreateGameSessionDto {
@@ -7,8 +7,4 @@ export class CreateGameSessionDto {
 
   @IsOptional()
   options?: Partial<GameOptions>;
-
-  @IsNumber()
-  @IsOptional()
-  gameStartInMs?: number;
 }

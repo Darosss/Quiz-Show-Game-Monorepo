@@ -1,5 +1,7 @@
 import { CurrentTimerGameStage, PossibleLanguages, RolesUser } from "./enums";
 
+export type TimeoutType = ReturnType<typeof setTimeout>;
+
 type CommonFieldTypes = {
   _id: string;
   createdAt: Date;
@@ -55,14 +57,14 @@ export type QuestionAnswerNameType = [];
 
 export type GameOptions = {
   questionsCount: number;
-  timeForShowQuestionAnswersMs: number;
-  timeForAnswerMs: number;
-  timeForNextQuestionMs: number;
-  timeForShowQuestionResult: number;
-
   pointsPerCorrect: number;
   pointsPerWrong: number;
-
+  showQuestionAnswersMs: number;
+  answerTimeMs: number;
+  nextQuestionMs: number;
+  showQuestionResultMs: number;
+  startGameMs: number;
+  endGameMs: number;
   language: PossibleLanguages;
 };
 

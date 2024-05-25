@@ -7,16 +7,30 @@ import {
   Game,
   PlayerDataGame,
   Room,
+  TimeoutType,
   addSecondsToDate,
-  wait,
 } from 'src/shared';
 import { CreateGameSessionDto } from './dto/create-game-session.dto';
 import { QuestionsService } from 'src/questions/questions.service';
 import { CategoriesService } from 'src/categories/categories.service';
+import { GameTimerData } from './game-timer-data.class';
 
+type OnStagesTimeoutReturnType = {
+  timeout: TimeoutType;
+  game: Game;
+};
+
+type GetStageDetailsReturnType = {
+  nextStageDelay: number;
+  onStageFn: (
+    game: Game,
+    roomData: Room,
+    nextStageDelay: number,
+  ) => Promise<Game>;
+};
 @Injectable()
 export class GamesSessionsService {
-  private ongoingGamesTimers: Map<string, NodeJS.Timeout> = new Map();
+  private ongoingGamesTimers: Map<string, GameTimerData> = new Map();
   constructor(
     private readonly gameService: GamesService,
     @Inject(forwardRef(() => RoomsService))
@@ -27,134 +41,160 @@ export class GamesSessionsService {
   ) {}
 
   async createAndStartSession(data: CreateGameSessionDto): Promise<Game> {
-    const { gameStartInMs, ...restData } = data;
-    const gameStartIn = gameStartInMs || 5000;
-
-    const game = await this.gameService.create({
-      ...restData,
-      playersData: new Map(
-        restData.room.players.map((player) => [player._id, { score: 0 }]),
-      ),
-      currentTimer: {
-        stage: CurrentTimerGameStage.GAME_STARTING,
-        date: addSecondsToDate(gameStartIn / 1000),
-      },
-    });
-
-    //TOOD: note temporary solution - delay 1s
-    await wait(1000);
-
-    const gameTimeout = await this.gameTimeout(
-      game,
-      restData.room.code,
-      gameStartIn,
+    const createdGame = await this.onGameCreate(data);
+    this.ongoingGamesTimers.set(
+      String(createdGame._id), //Casting to ensure that it will be string. Problems with Mongo ObjectIds,
+      new GameTimerData({ currentStage: createdGame.currentTimer.stage }),
     );
-    gameTimeout
-      ? this.ongoingGamesTimers.set(game._id, gameTimeout)
-      : await this.gameService.remove(game._id);
+    const { game } = await this.onStagesTimeout(createdGame, data.room);
     return game;
   }
 
-  async gameTimeout(game: Game, roomCode: Room['code'], delay?: number) {
-    if (game.currentQuestionNumber >= game.options.questionsCount)
-      return this.handleEndGameStage(game._id, game.room._id, roomCode);
-
-    this.eventsGateway.server.to(roomCode).emit('updateGameStage', game);
-    return setTimeout(async () => {
-      const updatedGame = await this.handleGameStages(game, roomCode);
-
-      if (!updatedGame) return;
-      await this.gameTimeout(updatedGame, roomCode, 1);
-    }, delay || game.options.timeForNextQuestionMs);
+  private getStageDetails(
+    data: Pick<Game, 'options' | 'currentTimer' | 'currentQuestionNumber'>,
+    isEnded: boolean,
+  ): GetStageDetailsReturnType {
+    const options = data.options;
+    switch (data.currentTimer.stage) {
+      case CurrentTimerGameStage.GAME_ENDING:
+        return {
+          nextStageDelay: options.endGameMs,
+          onStageFn: this.endGame.bind(this),
+        };
+      case CurrentTimerGameStage.GAME_STARTING:
+        return {
+          nextStageDelay: options.startGameMs,
+          onStageFn: this.onGameQuestionStage.bind(this),
+        };
+      case CurrentTimerGameStage.QUESTION_RESULT:
+        return {
+          nextStageDelay: options.showQuestionResultMs,
+          onStageFn: isEnded
+            ? this.onEndGameStage.bind(this)
+            : this.onNewQuestionStage.bind(this),
+        };
+      case CurrentTimerGameStage.NEW_QUESTION:
+        return {
+          nextStageDelay: options.nextQuestionMs,
+          onStageFn: this.onGameQuestionStage.bind(this),
+        };
+      case CurrentTimerGameStage.ANSWER_TIME:
+        return {
+          nextStageDelay: options.answerTimeMs,
+          onStageFn: this.onShowCorrectAnswersStage.bind(this),
+        };
+      case CurrentTimerGameStage.QUESTION:
+        return {
+          nextStageDelay: options.showQuestionAnswersMs,
+          onStageFn: this.onAnswerTimeStage.bind(this),
+        };
+    }
   }
 
-  private async handleGameStages(game: Game, roomCode: Room['code']) {
-    const answerTimeUpdate = await this.handleQuestionLogicStage(
-      game,
-      roomCode,
-    );
+  private async onStagesTimeout(
+    game: Game,
+    room: Room,
+    delay?: number,
+  ): Promise<OnStagesTimeoutReturnType> {
+    let updatedGameInstance: Game = game;
+    const isEnded =
+      updatedGameInstance.currentTimer.stage ===
+        CurrentTimerGameStage.QUESTION_RESULT &&
+      updatedGameInstance.currentQuestionNumber >=
+        updatedGameInstance.options.questionsCount
+        ? true
+        : false;
+    const stageDetails = this.getStageDetails(updatedGameInstance, isEnded);
 
-    if (!answerTimeUpdate)
-      return this.handleEndGameStage(game._id, game.room._id, game.room.code);
+    const timeout = setTimeout(async () => {
+      updatedGameInstance = await stageDetails.onStageFn(
+        updatedGameInstance,
+        room,
+        stageDetails.nextStageDelay,
+      );
 
-    await wait(answerTimeUpdate.options.timeForAnswerMs);
+      this.ongoingGamesTimers
+        .get(String(updatedGameInstance._id))
+        ?.setCurrentTimer(
+          (
+            await this.onStagesTimeout(
+              updatedGameInstance,
+              room,
+              stageDetails.nextStageDelay,
+            )
+          ).timeout,
+        );
+    }, delay || stageDetails.nextStageDelay);
 
-    const correctAnswersUpdate = await this.handleShowCorrectAnswersStage(
-      answerTimeUpdate,
-      roomCode,
-    );
-    await wait(correctAnswersUpdate.options.timeForShowQuestionResult);
-
-    const updatedGame = await this.handleNewQuestionStage(
-      correctAnswersUpdate,
-      roomCode,
-    );
-    await wait(updatedGame.options.timeForNextQuestionMs);
-
-    return updatedGame;
+    return { timeout, game: updatedGameInstance };
   }
 
-  private async handleNewQuestionStage(
-    data: Pick<Game, '_id' | 'options'>,
-    roomCode: Room['code'],
+  private async onShowCorrectAnswersStage(
+    data: Pick<Game, '_id' | 'playersData'>,
+    roomData: Pick<Room, 'code'>,
+    delayMs: number,
   ) {
-    const { _id, options } = data;
+    const { _id } = data;
+    const gameWithShowAnswers = await this.gameService.update(_id, {
+      canAnswer: false,
+      currentTimer: {
+        stage: CurrentTimerGameStage.QUESTION_RESULT,
+        date: addSecondsToDate(delayMs / 1000),
+      },
+    });
+    this.eventsGateway.server
+      .to(roomData.code)
+      .emit('showQuestionCorrectAnswersInGame', gameWithShowAnswers);
+    //TODO: scores
+    // Emit here which question is correct add points etc
+    await this.handleScorePointsPlayersLogic(gameWithShowAnswers);
+    return gameWithShowAnswers;
+  }
+  private async onNewQuestionStage(
+    data: Pick<Game, '_id'>,
+    roomData: Pick<Room, 'code'>,
+    delayMs: number,
+  ) {
+    const { _id } = data;
     const updatedGame = await this.gameService.update(_id, {
       currentTimer: {
         stage: CurrentTimerGameStage.NEW_QUESTION,
-        date: addSecondsToDate(options.timeForNextQuestionMs / 1000),
+        date: addSecondsToDate(delayMs / 1000),
       },
     });
-    this.eventsGateway.server.to(roomCode).emit('updateGameStage', updatedGame);
+    this.eventsGateway.server
+      .to(roomData.code)
+      .emit('updateGameStage', updatedGame);
     return updatedGame;
   }
 
-  private async handleEndGameStage(
-    gameId: string,
-    roomId: string,
-    roomCode: Room['code'],
+  private async onAnswerTimeStage(
+    data: Pick<Game, '_id'>,
+    roomData: Pick<Room, 'code'>,
+    delayMs: number,
   ) {
-    await this.roomService.update(roomId, { game: null, playersReadiness: [] });
-
-    this.eventsGateway.server
-      .to(roomCode)
-      .emit(
-        'endGame',
-        await this.gameService.update(gameId, { isFinished: true }),
-      );
-
-    await this.gameService.remove(gameId);
-  }
-
-  private async handleQuestionLogicStage(
-    data: Pick<
-      Game,
-      '_id' | 'currentQuestionNumber' | 'options' | 'playersData' | 'room'
-    >,
-    roomCode: Room['code'],
-  ): Promise<Game | void> {
-    const updatedGame = await this.updateGameForNewQuestion(data);
-
-    if (!updatedGame) return;
-
-    this.eventsGateway.server.to(roomCode).emit('showNewQuestionInGame', {
-      data: updatedGame,
-      questionData: updatedGame.currentQuestion,
+    const { _id } = data;
+    const updatedGameWithPossibleAnswers = await this.gameService.update(_id, {
+      canAnswer: true,
+      currentTimer: {
+        stage: CurrentTimerGameStage.ANSWER_TIME,
+        date: addSecondsToDate(delayMs / 1000),
+      },
     });
 
-    await wait(updatedGame.options.timeForShowQuestionAnswersMs);
+    this.eventsGateway.server
+      .to(roomData.code)
+      .emit('showQuestionPossibleAnswers', updatedGameWithPossibleAnswers);
 
-    return this.handleAnswerTimeStage(updatedGame, roomCode);
+    return updatedGameWithPossibleAnswers;
   }
 
-  private async updateGameForNewQuestion(
-    data: Pick<
-      Game,
-      '_id' | 'currentQuestionNumber' | 'options' | 'playersData'
-    >,
-  ): Promise<Game | void> {
-    const { _id, currentQuestionNumber, options, playersData } = data;
-
+  private async onGameQuestionStage(
+    data: Pick<Game, '_id' | 'currentQuestionNumber' | 'playersData'>,
+    roomData: Pick<Room, 'code'>,
+    delayMs: number,
+  ) {
+    const { _id: gameId, playersData, currentQuestionNumber } = data;
     const newPlayersData = new Map(
       [...playersData].map(([id, data]) => {
         return [id, { score: data.score } as PlayerDataGame];
@@ -170,58 +210,75 @@ export class GamesSessionsService {
         randomCategory._id,
       );
 
-    const updatedGame = await this.gameService.update(_id, {
+    const updatedGame = await this.gameService.update(gameId, {
       currentQuestionNumber: currentQuestionNumber + 1,
       currentQuestion: randomQuestion,
       currentCategory: randomCategory,
       playersData: newPlayersData,
       currentTimer: {
         stage: CurrentTimerGameStage.QUESTION,
-        date: addSecondsToDate(options.timeForShowQuestionAnswersMs / 1000),
+        date: addSecondsToDate(delayMs / 1000),
       },
+    });
+    this.eventsGateway.server.to(roomData.code).emit('showNewQuestionInGame', {
+      data: updatedGame,
+      questionData: updatedGame.currentQuestion,
     });
     return updatedGame;
   }
 
-  private async handleAnswerTimeStage(
-    data: Pick<Game, '_id' | 'options'>,
-    roomCode: Room['code'],
-  ) {
-    const { _id, options } = data;
-    const updatedGameWithPossibleAnswers = await this.gameService.update(_id, {
-      canAnswer: true,
+  private async onGameCreate(data: CreateGameSessionDto) {
+    const game = await this.gameService.create({
+      ...data,
+      playersData: new Map(
+        data.room.players.map((player) => [player._id, { score: 0 }]),
+      ),
       currentTimer: {
-        stage: CurrentTimerGameStage.ANSWER_TIME,
-        date: addSecondsToDate(options.timeForAnswerMs / 1000),
+        stage: CurrentTimerGameStage.GAME_STARTING,
+        date: addSecondsToDate(data.options.startGameMs / 1000 || 2000),
       },
     });
 
-    this.eventsGateway.server
-      .to(roomCode)
-      .emit('showQuestionPossibleAnswers', updatedGameWithPossibleAnswers);
-
-    return updatedGameWithPossibleAnswers;
+    return game;
   }
 
-  private async handleShowCorrectAnswersStage(
-    data: Pick<Game, '_id' | 'options' | 'playersData'>,
-    roomCode: Room['code'],
+  private async onEndGameStage(
+    data: Pick<Game, '_id' | 'currentQuestionNumber' | 'room'>,
+    roomData: Pick<Room, '_id' | 'code'>,
+    delayMs: number,
   ) {
-    const { _id, options } = data;
-    const gameWithShowAnswers = await this.gameService.update(_id, {
-      canAnswer: false,
+    await this.roomService.update(roomData._id, {
+      game: null,
+      playersReadiness: [],
+    });
+
+    const game = await this.gameService.update(data._id, {
       currentTimer: {
-        stage: CurrentTimerGameStage.QUESTION_RESULT,
-        date: addSecondsToDate(options.timeForShowQuestionResult / 1000),
+        stage: CurrentTimerGameStage.GAME_ENDING,
+        date: addSecondsToDate(delayMs / 1000),
       },
     });
+
+    this.eventsGateway.server.to(roomData.code).emit('updateGameStage', game);
+    return game;
+  }
+
+  private async endGame(
+    data: Game,
+    roomData: Pick<Room, 'code'>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _delayMs: number,
+  ) {
     this.eventsGateway.server
-      .to(roomCode)
-      .emit('showQuestionCorrectAnswersInGame', gameWithShowAnswers);
-    //TODO: scores
-    // Emit here which question is correct add points etc
-    await this.handleScorePointsPlayersLogic(gameWithShowAnswers);
-    return gameWithShowAnswers;
+      .to(roomData.code)
+      .emit(
+        'endGame',
+        await this.gameService.update(data._id, { isFinished: true }),
+      );
+    this.ongoingGamesTimers.get(String(data._id)).stopTimer();
+    this.ongoingGamesTimers.delete(String(data._id));
+    await this.gameService.remove(data._id);
+    return data;
   }
 
   private async handleScorePointsPlayersLogic(
