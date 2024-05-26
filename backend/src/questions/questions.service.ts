@@ -56,7 +56,7 @@ export class QuestionsService {
   }
 
   findById(id: string, projection?: ProjectonType): Promise<Question> {
-    return this.questionModel.findOne({ question: id }, projection);
+    return this.questionModel.findById(id, projection);
   }
 
   async update(

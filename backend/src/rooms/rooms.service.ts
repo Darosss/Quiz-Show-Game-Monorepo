@@ -50,7 +50,7 @@ export class RoomsService {
   }
 
   findById(id: string, projection?: ProjectonType): Promise<Room> {
-    return this.roomModel.findOne({ question: id }, projection);
+    return this.roomModel.findById(id, projection);
   }
 
   async update(id: string, updateData: UpdateRoomDto): Promise<Room> {
