@@ -1,14 +1,13 @@
 import { ManagePlayerReadiness, ManagePlayersInRoom } from "./enums";
-import { Game, PlayerDataGame, Question, Room, User } from "./types";
+import { Category, Game, PlayerDataGame, Question, Room, User } from "./types";
 
 export type ServerToClientEvents = {
   userJoinLeave: (data: UserJoinLeaveData) => void;
   userSetReady: (data: UserSetReadyData) => void;
   startGame: () => void;
   userChoseAnswer: (data: UserChoseAnswerData) => void;
-
   showNewQuestionInGame: (data: ShowNewQuestionInGameData) => void;
-
+  showChooseCategoryStage: (data: Category[]) => void;
   showQuestionPossibleAnswers: (
     data: Pick<Game, "currentQuestion" | "currentTimer" | "canAnswer">
   ) => void;
@@ -21,7 +20,9 @@ export type ServerToClientEvents = {
   ) => void;
 
   //updateGameStage: For other simpler stages
-  updateGameStage: (data: Pick<Game, "currentTimer">) => void;
+  updateGameStage: (
+    data: Pick<Game, "currentTimer" | "currentCategory">
+  ) => void;
   endGame: (data: Game) => void;
 };
 
@@ -30,6 +31,7 @@ export type ClientToServerEvents = {
   leaveRoom: (code: Room["code"]) => void;
   getGameSession: (room: Room, cb: (e: Game) => Promise<Game>) => void;
   chooseAnswer: (data: ChooseAnswerData) => void;
+  chooseCategory: (data: ChooseCategoryData) => void;
 };
 
 type UserSetReadyData = {
@@ -48,6 +50,11 @@ export type ChooseAnswerData = {
   gameId: string;
   playerId: string;
   answerId: string;
+};
+export type ChooseCategoryData = {
+  gameId: string;
+  playerId: string;
+  categoryId: string;
 };
 
 export type ShowNewQuestionInGameData = {
