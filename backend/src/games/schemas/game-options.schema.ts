@@ -27,6 +27,9 @@ export class GameOptions implements GameOptionsType {
   @Prop({ default: 5000 })
   endGameMs: number;
 
+  @Prop({ default: 60000 })
+  categoryChoiceMs: number;
+
   @Prop({ default: 100 })
   pointsPerCorrect: number;
 
