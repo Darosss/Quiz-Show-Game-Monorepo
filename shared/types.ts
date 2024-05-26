@@ -64,6 +64,7 @@ export type GameOptions = {
   nextQuestionMs: number;
   showQuestionResultMs: number;
   startGameMs: number;
+  categoryChoiceMs: number;
   endGameMs: number;
   language: PossibleLanguages;
 };
@@ -76,6 +77,7 @@ export type CurrentTimerGame = {
 export type PlayerDataGame = {
   score: number;
   currentAnswer?: string;
+  canChooseCategory?: boolean;
 };
 
 export type Game = CommonFieldTypes & {
