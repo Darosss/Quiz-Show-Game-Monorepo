@@ -174,7 +174,6 @@ export class GamesSessionsService {
     this.eventsGateway.server
       .to(roomData.code)
       .emit('updateGameStage', gameWithUpdatedCategory);
-    console.log('aha ??', possibleCategories);
     this.eventsGateway.server
       .to(roomData.code)
       .emit('showChooseCategoryStage', possibleCategories);
