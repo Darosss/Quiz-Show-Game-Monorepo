@@ -8,6 +8,8 @@ import { GamePlayers } from "./game-players";
 import { GameTimers } from "./game-timers";
 import { CurrentQuestion } from "./current-question";
 import { GameSpeech } from "./game-speech";
+import { CurrentTimerGameStage } from "@/shared/enums";
+import { CategoryChoice } from "./category-choice";
 
 export const GamePlaying: FC = () => {
   const [showCorrect, setShowCorrect] = useState(false);
@@ -132,13 +134,12 @@ export const GamePlaying: FC = () => {
 
   if (!responseData.data) return <>TODO: No data refresh pelase </>;
 
+  const currentStage = responseData.data.currentTimer?.stage;
   return (
     <div className={styles.gamePlayingWrapper}>
+      <GameSpeech />
       {!responseData.data.isFinished ? (
         <>
-          <div className={styles.speechOptions}>
-            <GameSpeech />
-          </div>
           <div className={styles.gameDetailsWrapper}>
             <div className={styles.timer}>
               <GameTimers />
@@ -147,7 +148,13 @@ export const GamePlaying: FC = () => {
               <GamePlayers />
             </div>
             <div className={styles.gameDetails}>
-              <CurrentQuestion showCorrect={showCorrect} />
+              {currentStage === CurrentTimerGameStage.CATEGORY_CHOICE ? (
+                <>
+                  <CategoryChoice />
+                </>
+              ) : (
+                <CurrentQuestion showCorrect={showCorrect} />
+              )}
             </div>
           </div>
         </>

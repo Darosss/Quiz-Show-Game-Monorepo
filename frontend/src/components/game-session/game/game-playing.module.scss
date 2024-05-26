@@ -15,16 +15,6 @@ $answerCorrect: #16a34a;
   align-items: center;
   position: relative;
 
-  .speechOptions {
-    position: absolute;
-    right: 0;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-  }
-
   .gameDetailsWrapper {
     display: grid;
     grid-template-columns: 1fr 0.35fr;
@@ -78,6 +68,11 @@ $answerCorrect: #16a34a;
 
     .gameDetails {
       grid-area: GAME-DETAILS;
+      .categoryChoiceWrapper {
+        div {
+          z-index: 500 !important;
+        }
+      }
 
       .currentQuestionWrapper {
         display: flex;

@@ -16,5 +16,6 @@ export const getSocketEmitsFunctions = (
         return cb(e);
       }),
     chooseAnswer: (data) => socketConnection.emit("chooseAnswer", data),
+    chooseCategory: (data) => socketConnection.emit("chooseCategory", data),
   };
 };

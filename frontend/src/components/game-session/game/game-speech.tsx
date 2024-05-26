@@ -7,7 +7,10 @@ export const GameSpeech: FC = () => {
   const [speechOptions, setSpeechOptions] = useQuestionSpeech();
   const [showOptions, setShowOptions] = useState(false);
   return (
-    <div className={styles.speechOptionsWrapper}>
+    <div
+      className={`${styles.speechOptionsWrapper} 
+    ${showOptions ? styles.showed : ""}`}
+    >
       <div className={styles.toggleButton}>
         <Button
           defaultButtonType="info"

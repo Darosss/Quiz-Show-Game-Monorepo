@@ -51,5 +51,10 @@ export const getSocketEventsFunctions = (
       on: (cb) => socketConnection.on("updateGameStage", (data) => cb(data)),
       off: () => socketConnection.off("updateGameStage"),
     },
+    showChooseCategoryStage: {
+      on: (cb) =>
+        socketConnection.on("showChooseCategoryStage", (data) => cb(data)),
+      off: () => socketConnection.off("showChooseCategoryStage"),
+    },
   };
 };
