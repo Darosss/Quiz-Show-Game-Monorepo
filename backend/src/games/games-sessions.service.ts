@@ -3,12 +3,14 @@ import { GamesService } from './games.service';
 import { RoomsService } from 'src/rooms';
 import { EventsGateway } from 'src/events';
 import {
+  Category,
   CurrentTimerGameStage,
   Game,
   PlayerDataGame,
   Room,
   TimeoutType,
   addSecondsToDate,
+  getRandomElementFromArray,
 } from 'src/shared';
 import { CreateGameSessionDto } from './dto/create-game-session.dto';
 import { QuestionsService } from 'src/questions/questions.service';
@@ -28,6 +30,7 @@ type GetStageDetailsReturnType = {
     nextStageDelay: number,
   ) => Promise<Game>;
 };
+
 @Injectable()
 export class GamesSessionsService {
   private ongoingGamesTimers: Map<string, GameTimerData> = new Map();
@@ -46,7 +49,11 @@ export class GamesSessionsService {
       String(createdGame._id), //Casting to ensure that it will be string. Problems with Mongo ObjectIds,
       new GameTimerData({ currentStage: createdGame.currentTimer.stage }),
     );
-    const { game } = await this.onStagesTimeout(createdGame, data.room);
+    const { game } = await this.onStagesTimeout(
+      createdGame,
+      data.room,
+      data.options.startGameMs,
+    );
     return game;
   }
 
@@ -63,8 +70,8 @@ export class GamesSessionsService {
         };
       case CurrentTimerGameStage.GAME_STARTING:
         return {
-          nextStageDelay: options.startGameMs,
-          onStageFn: this.onGameQuestionStage.bind(this),
+          nextStageDelay: options.categoryChoiceMs,
+          onStageFn: this.onCategoryChoice.bind(this),
         };
       case CurrentTimerGameStage.QUESTION_RESULT:
         return {
@@ -88,13 +95,18 @@ export class GamesSessionsService {
           nextStageDelay: options.showQuestionAnswersMs,
           onStageFn: this.onAnswerTimeStage.bind(this),
         };
+      case CurrentTimerGameStage.CATEGORY_CHOICE:
+        return {
+          nextStageDelay: options.nextQuestionMs,
+          onStageFn: this.onUserDidNotChooseCategory.bind(this),
+        };
     }
   }
 
   private async onStagesTimeout(
     game: Game,
     room: Room,
-    delay?: number,
+    delayMs?: number,
   ): Promise<OnStagesTimeoutReturnType> {
     let updatedGameInstance: Game = game;
     const isEnded =
@@ -124,9 +136,81 @@ export class GamesSessionsService {
             )
           ).timeout,
         );
-    }, delay || stageDetails.nextStageDelay);
+    }, delayMs || stageDetails.nextStageDelay);
 
     return { timeout, game: updatedGameInstance };
+  }
+
+  private async onCategoryChoice(
+    data: Pick<Game, '_id' | 'playersData'>,
+    roomData: Pick<Room, 'code'>,
+    delayMs: number,
+  ) {
+    const possibleCategories = await this.categoriesService.getRandomCategories(
+      4,
+    );
+
+    this.ongoingGamesTimers
+      .get(String(data._id))
+      .setPossibleCategories(possibleCategories);
+
+    const randomPlayerId = getRandomElementFromArray(
+      Array.from(data.playersData.keys()),
+    );
+    const newPlayersData = new Map(data.playersData);
+    newPlayersData.set(randomPlayerId, {
+      ...newPlayersData.get(randomPlayerId),
+      canChooseCategory: true,
+    });
+
+    const gameWithUpdatedCategory = await this.gameService.update(data._id, {
+      canAnswer: false,
+      currentTimer: {
+        stage: CurrentTimerGameStage.CATEGORY_CHOICE,
+        date: addSecondsToDate(delayMs / 1000),
+      },
+      playersData: newPlayersData,
+    });
+    this.eventsGateway.server
+      .to(roomData.code)
+      .emit('updateGameStage', gameWithUpdatedCategory);
+    console.log('aha ??', possibleCategories);
+    this.eventsGateway.server
+      .to(roomData.code)
+      .emit('showChooseCategoryStage', possibleCategories);
+
+    return gameWithUpdatedCategory;
+  }
+  private async onUserDidNotChooseCategory(
+    data: Game,
+    roomData: Pick<Room, 'code'>,
+    delayMs: number,
+  ) {
+    const categories = this.ongoingGamesTimers
+      .get(String(data._id))
+      ?.getPossibleCategories();
+    if (categories.length <= 0)
+      //TODO: here I should add method named sth like: gameEndWithCondition?
+      // When for example no categories found / no question founds etc
+      // Then replace endGame with above metionted
+      return await this.endGame(data, roomData, delayMs);
+
+    const gameWithUpdatedCategory = await this.gameService.update(data._id, {
+      canAnswer: false,
+      currentCategory: getRandomElementFromArray(categories),
+      currentTimer: {
+        stage: CurrentTimerGameStage.QUESTION,
+        date: addSecondsToDate(delayMs / 1000),
+      },
+    });
+
+    this.ongoingGamesTimers.get(String(data._id))?.setPossibleCategories([]);
+
+    this.eventsGateway.server
+      .to(roomData.code)
+      .emit('updateGameStage', gameWithUpdatedCategory);
+
+    return this.onGameQuestionStage(gameWithUpdatedCategory, roomData, 1000);
   }
 
   private async onShowCorrectAnswersStage(
@@ -190,7 +274,10 @@ export class GamesSessionsService {
   }
 
   private async onGameQuestionStage(
-    data: Pick<Game, '_id' | 'currentQuestionNumber' | 'playersData'>,
+    data: Pick<
+      Game,
+      '_id' | 'currentQuestionNumber' | 'playersData' | 'currentCategory'
+    >,
     roomData: Pick<Room, 'code'>,
     delayMs: number,
   ) {
@@ -200,20 +287,15 @@ export class GamesSessionsService {
         return [id, { score: data.score } as PlayerDataGame];
       }),
     );
-    const randomCategory = await this.categoriesService.getRandomCategory();
-    //TODO: note - thats temporary solution till I do choosing category etc, etc
-    //Also ensure that game has at least some questions in each category etc..
-    if (!randomCategory) return;
 
     const randomQuestion =
       await this.questionsService.getRandomQuestionByCategoryId(
-        randomCategory._id,
+        data.currentCategory._id,
       );
 
     const updatedGame = await this.gameService.update(gameId, {
       currentQuestionNumber: currentQuestionNumber + 1,
       currentQuestion: randomQuestion,
-      currentCategory: randomCategory,
       playersData: newPlayersData,
       currentTimer: {
         stage: CurrentTimerGameStage.QUESTION,
@@ -318,5 +400,42 @@ export class GamesSessionsService {
     await this.gameService.update(data._id, {
       playersData: playersDataInst,
     });
+  }
+
+  public async userOnChooseCategorySubscribedMessage(
+    game: Game,
+    chosenCategory: Category,
+    playerId: string,
+  ) {
+    const gameData = this.ongoingGamesTimers.get(String(game._id));
+    gameData?.stopTimer();
+
+    const newPlayersData = new Map(game.playersData);
+    newPlayersData.set(playerId, {
+      ...newPlayersData.get(playerId),
+      canChooseCategory: undefined,
+    });
+
+    //TODO: make population for rooms etc ololo
+    const room = await this.roomService.findById(String(game.room));
+    const updatedGame = await this.gameService.update(game._id, {
+      currentCategory: chosenCategory,
+      currentTimer: {
+        date: addSecondsToDate(1),
+        stage: CurrentTimerGameStage.NEW_QUESTION,
+      },
+    });
+
+    const newTimeout = await this.onStagesTimeout(
+      updatedGame,
+      room,
+      updatedGame.options.nextQuestionMs,
+    );
+    this.ongoingGamesTimers.get(String(game._id))?.setPossibleCategories([]);
+    this.ongoingGamesTimers
+      .get(String(game._id))
+      ?.setCurrentTimer(newTimeout.timeout);
+
+    this.eventsGateway.server.emit('updateGameStage', updatedGame);
   }
 }
