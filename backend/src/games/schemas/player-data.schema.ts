@@ -11,4 +11,7 @@ export class PlayerData implements PlayerDataGame {
 
   @Prop()
   currentAnswer?: string;
+
+  @Prop()
+  canChooseCategory?: boolean;
 }
