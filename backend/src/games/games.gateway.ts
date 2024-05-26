@@ -12,12 +12,19 @@ import {
   Game,
   Room,
   ChooseAnswerData,
+  ChooseCategoryData,
 } from 'src/shared';
 import { GamesService } from './games.service';
+import { CategoriesService } from 'src/categories/categories.service';
+import { GamesSessionsService } from './games-sessions.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class GamesGateway {
-  constructor(private readonly gameService: GamesService) {}
+  constructor(
+    private readonly gameService: GamesService,
+    private readonly gameSessionService: GamesSessionsService,
+    private readonly categoryService: CategoriesService,
+  ) {}
   @WebSocketServer()
   server: Server<ClientToServerEvents, ServerToClientEvents>;
 
@@ -47,5 +54,26 @@ export class GamesGateway {
         },
       },
     });
+  }
+  @SocketEventsSubscribeMessage('chooseCategory')
+  async onChooseCategory(
+    @MessageBody()
+    { gameId, categoryId, playerId }: ChooseCategoryData,
+  ): Promise<void> {
+    const foundGame = await this.gameService.findById(gameId);
+
+    if (!foundGame.playersData.get(playerId).canChooseCategory) {
+      return;
+    }
+
+    const chosenCategory = await this.categoryService.findOne({
+      _id: categoryId,
+    });
+
+    await this.gameSessionService.userOnChooseCategorySubscribedMessage(
+      foundGame,
+      chosenCategory,
+      playerId,
+    );
   }
 }
