@@ -3,7 +3,7 @@
 import Cookies from "js-cookie";
 import { FC, createContext, useContext, useEffect, useState } from "react";
 import { ApiDataNotNullable, COOKIE_TOKEN_NAME } from "@/api/fetch";
-import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
+import { UseFetchReturnType, useFetch } from "@/hooks/use-fetch";
 import { RolesUser, UserTokenInfo } from "@/shared/index";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "react-toastify";

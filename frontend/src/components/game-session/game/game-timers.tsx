@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { useCountdownTimer } from "@/hooks/useCountdownTimer";
+import { useCountdownTimer } from "@/hooks/use-countdown-timer";
 import { formatTime } from "@/utils/utils";
 import { useGameSessionContext } from "../game-session-context";
 

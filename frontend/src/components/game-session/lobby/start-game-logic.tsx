@@ -1,8 +1,8 @@
-import { useCountdownTimer } from "@/hooks/useCountdownTimer";
+import { useCountdownTimer } from "@/hooks/use-countdown-timer";
 import { formatTime } from "@/utils/utils";
 import { FC, useEffect, useState } from "react";
 import { useRoomLobbyContext } from "./room-lobby-context";
-import { useFetch } from "@/hooks/useFetch";
+import { useFetch } from "@/hooks/use-fetch";
 import { addSecondsToDate } from "@/shared/index";
 
 export const StartGameLogic: FC = () => {
