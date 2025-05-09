@@ -1,6 +1,4 @@
-# Text based game - frontend
-
-Implementation frontend for https://github.com/Darosss/text-based-game-java-spring
+# Quiz Show - frontend
 
 ## Getting Started
 
