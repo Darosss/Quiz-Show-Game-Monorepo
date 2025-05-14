@@ -1,6 +1,6 @@
 "use client";
 
-import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
+import { UseFetchReturnType, useFetch } from "@/hooks/use-fetch";
 import { FC, createContext, useContext } from "react";
 import { RoomLobbyContextProvider } from "./lobby/room-lobby-context";
 import { Game } from "@/shared/types";

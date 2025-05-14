@@ -9,8 +9,8 @@ import { LayoutContent } from "./layout-content";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Text based game",
-  description: "Text based game",
+  title: "Quiz Show",
+  description: "Quiz Show",
 };
 
 export default function RootLayout({

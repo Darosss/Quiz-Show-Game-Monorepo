@@ -7,3 +7,6 @@ export const addSecondsToDate = (seconds: number, date?: Date): Date => {
 
 export const wait = (milliseconds: number) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+export const getRandomElementFromArray = <ArrayType>(array: ArrayType[]) =>
+  array[Math.floor(Math.random() * array.length)];

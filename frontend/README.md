@@ -1,14 +1,16 @@
-# Text based game - frontend
-
-Implementation frontend for https://github.com/Darosss/text-based-game-java-spring
+# Quiz Show - frontend
 
 ## Getting Started
+
+### Prerequisites
 
 ### Configure environment variables
 
 - visit https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables - to check how use environment variables in next.js
 
 - check out env.example file in root folder
+
+### Installation
 
 Then, run the development server:
 

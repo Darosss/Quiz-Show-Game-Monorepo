@@ -8,6 +8,8 @@ import { Reflector } from '@nestjs/core';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from './decorators';
 import { JWT_SECRET } from 'src/configs';
+import { Request } from 'express';
+import { ACCESS_TOKEN_NAME } from './utils';
 
 const UNAUTHORIZED_ERROR_MESSAGE = 'You need to log in to perform this action';
 
@@ -24,29 +26,31 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new UnauthorizedException(UNAUTHORIZED_ERROR_MESSAGE);
-    }
+    const contextHTTP = context.switchToHttp();
+    const request = contextHTTP.getRequest<Request>();
+    const accessToken = this.getAccessToken(request);
+
+    if (!accessToken) throw new UnauthorizedException('No token');
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const payload = await this.jwtService.verifyAsync(accessToken, {
         secret: JWT_SECRET,
       });
       request['user'] = payload;
     } catch (err) {
-      if (err instanceof TokenExpiredError)
+      if (err instanceof TokenExpiredError) {
         throw new UnauthorizedException(
           `${err.message} expired at: ${err.expiredAt.toUTCString()}`,
         );
+      }
 
       throw new UnauthorizedException(UNAUTHORIZED_ERROR_MESSAGE);
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers['authorization']?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+  private getAccessToken(request: Request): string | undefined {
+    const token =
+      request.cookies[ACCESS_TOKEN_NAME] || (request as any).accessToken;
+    return token;
   }
 }

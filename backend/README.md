@@ -1,20 +1,12 @@
-# QuizAppBackend
+# Quiz show - backend
 
-This repository is a backend of a quiz app.
-
-# Linked repositories:
-
-- created frontend for this api:
-
-  - [Frontend](https://github.com/Darosss/QuizAppFrontend)
-
-# Getting started
+## Getting started
 
 ### Prerequisites
 
 ### Configuration
 
-The app requires several environment variables to be set in the .env file. You can use the .env.example (should be in root directory) file as a template.
+The app requires several environment variables to be set in the .env file. You can use the .env.example file as a template.
 
 ### Installation
 
@@ -22,6 +14,7 @@ The app requires several environment variables to be set in the .env file. You c
 npm install
 
 then
+
 npm run start:dev - or find needed in package.json
 
 

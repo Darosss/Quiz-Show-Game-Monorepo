@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { FetchingInfo } from "@/components/common";
-import { useFetch } from "@/hooks/useFetch";
+import { useFetch } from "@/hooks/use-fetch";
 import { Category } from "@/shared/types";
 import { PossibleLanguages } from "@/shared/enums";
 

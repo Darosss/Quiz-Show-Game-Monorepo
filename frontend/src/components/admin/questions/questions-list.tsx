@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { Button, FetchingInfo } from "@/components/common";
-import { useFetch } from "@/hooks/useFetch";
+import { useFetch } from "@/hooks/use-fetch";
 import { Question } from "@/shared/types";
 import styles from "./questions.module.scss";
 import { PossibleLanguages } from "@/shared/enums";

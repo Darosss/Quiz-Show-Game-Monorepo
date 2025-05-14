@@ -1,5 +1,5 @@
 import { useAuthContext } from "@/components/auth";
-import { UseFetchReturnType, useFetch } from "@/hooks/useFetch";
+import { UseFetchReturnType, useFetch } from "@/hooks/use-fetch";
 import { Room } from "@/shared/types";
 import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { FC, createContext, useContext, useEffect, useMemo } from "react";

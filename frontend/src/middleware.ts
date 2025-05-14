@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { COOKIE_TOKEN_NAME } from "./api/fetch";
+const loginPath = "/login";
+const registerPath = "/register";
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get(COOKIE_TOKEN_NAME)?.value;
-  const path = request.nextUrl.pathname;
+  const token = request.cookies.get("access_token_qs")?.value;
 
-  if (token && (path === "/auth/login" || path === "/auth/register"))
+  const path = request.nextUrl.pathname;
+  if (token && (path === loginPath || path === registerPath))
     return NextResponse.redirect(new URL("/", request.url));
-  else if (!token && (path === "/auth/login" || path === "/auth/register"))
-    return;
+  else if (!token && !(path === loginPath || path === registerPath)) return;
   else if (token) return;
-  else return NextResponse.redirect(new URL("/auth/login", request.url));
+  else return NextResponse.redirect(new URL(loginPath, request.url));
 }
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|images|favicon.ico).*)"],
