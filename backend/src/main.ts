@@ -13,8 +13,8 @@ async function bootstrap() {
     },
   });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter({ httpAdapter }));
+  const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   app.use(cookieParser());
 
   //TODO: Import { SERVER_PORT } from ./configs doesnt work. Find out why
