@@ -4,6 +4,7 @@ import styles from "./home-content.module.scss";
 import { BaseRoomActions } from "@/components/rooms";
 import { useRoomLobbyContext } from "@/components/game-session/lobby/room-lobby-context";
 import { VisitRoom } from "./visit-room";
+import { useAuthContext } from "../auth";
 
 export const HomeContent: FC = () => {
   const {
@@ -13,9 +14,11 @@ export const HomeContent: FC = () => {
       },
     },
   } = useRoomLobbyContext();
+  const { isLoggedIn } = useAuthContext();
+
   return (
     <div className={styles.homeContentWrapper}>
-      {roomData ? <VisitRoom /> : <BaseRoomActions />}
+      {!isLoggedIn ? null : roomData ? <VisitRoom /> : <BaseRoomActions />}
     </div>
   );
 };
