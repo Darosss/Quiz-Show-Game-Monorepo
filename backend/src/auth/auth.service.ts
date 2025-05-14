@@ -1,14 +1,16 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users';
 import { comparHashedString } from './auth.helpers';
 import { RegisterDto } from './dto/register.dto';
 import { User } from 'src/users/schemas/user.schema';
 import { UserTokenInfo, addSecondsToDate } from 'src/shared';
+import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenService } from './refresh-token-service';
 
 export type SignInReturnType = {
   accessToken: string;
-  expirationTimeTimestamp: number;
+  refreshToken: string;
+  expTimestamp: number;
 };
 
 @Injectable()
@@ -16,6 +18,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private refreshTokenService: RefreshTokenService,
   ) {}
 
   async registerUser(createUserDto: RegisterDto): Promise<User> {
@@ -42,7 +45,8 @@ export class AuthService {
     };
     return {
       accessToken: await this.jwtService.signAsync(payload),
-      expirationTimeTimestamp: addSecondsToDate(
+      refreshToken: await this.refreshTokenService.signAsync(payload),
+      expTimestamp: addSecondsToDate(
         Number(process.env.ACCESS_TOKEN_EXPIRATION_MS) / 1000,
       ).getTime(),
     };
@@ -55,6 +59,24 @@ export class AuthService {
     } catch (error) {
       return false;
     }
+  }
+
+  async decodeRefreshToken(token: string): Promise<UserTokenInfo | null> {
+    try {
+      const decodedToken = this.refreshTokenService.verify(
+        token,
+      ) as UserTokenInfo | null;
+      return decodedToken;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async refreshToken(payload: UserTokenInfo): Promise<string> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { iat, exp, ...restPayload } = payload;
+    const newToken = await this.jwtService.signAsync(restPayload);
+    return newToken;
   }
 
   async extractUserInfoFromToken(token: string): Promise<UserTokenInfo> {

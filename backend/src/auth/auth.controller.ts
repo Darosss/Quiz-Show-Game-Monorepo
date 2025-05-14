@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Request, Post, Headers } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Headers,
+  Res,
+  HttpCode,
+  HttpStatus,
+  Req,
+  UnauthorizedException,
+  Request,
+} from '@nestjs/common';
 import { AuthService, SignInReturnType } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './decorators';
@@ -6,6 +18,13 @@ import { RegisterDto } from './dto/register.dto';
 import { ControllerResponseReturn } from 'src/types';
 import { User } from 'src/users';
 import { UserTokenInfo } from 'src/shared';
+import { Response, Request as ExpressRequest } from 'express';
+import {
+  ACCESS_TOKEN_NAME,
+  REFRESH_TOKEN_NAME,
+  setAccessTokenCookieData,
+  setRefreshTokenCookieData,
+} from './utils';
 
 type StatusResponseType = {
   authenticated: boolean;
@@ -20,12 +39,19 @@ export class AuthController {
   @Post('login')
   async signIn(
     @Body() signInDto: LoginDto,
-  ): Promise<ControllerResponseReturn<SignInReturnType>> {
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ControllerResponseReturn<Pick<SignInReturnType, 'expTimestamp'>>> {
+    const tokenData = await this.authService.signIn(
+      signInDto.username,
+      signInDto.password,
+    );
+    setAccessTokenCookieData(res, tokenData.accessToken);
+    setRefreshTokenCookieData(res, tokenData.refreshToken);
+
     return {
-      data: await this.authService.signIn(
-        signInDto.username,
-        signInDto.password,
-      ),
+      data: {
+        expTimestamp: tokenData.expTimestamp,
+      },
       message: 'Successfully logged in',
     };
   }
@@ -39,6 +65,13 @@ export class AuthController {
       data: await this.authService.registerUser(registerDto),
       message: 'Successfully registered',
     };
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie(ACCESS_TOKEN_NAME);
+    res.clearCookie(REFRESH_TOKEN_NAME);
+    return { message: 'Logged out' };
   }
 
   @Get('profile')
@@ -64,6 +97,29 @@ export class AuthController {
       return { authenticated: true, tokenInfo: user };
     } else {
       return { authenticated: false };
+    }
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  async refresh(
+    @Req() req: ExpressRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = req.cookies?.[REFRESH_TOKEN_NAME];
+    if (!token) throw new UnauthorizedException('No refresh token');
+
+    try {
+      const payload = await this.authService.decodeRefreshToken(token);
+
+      if (!payload) throw new UnauthorizedException('Invalid refresh token');
+
+      const newAccessToken = await this.authService.refreshToken(payload);
+      setAccessTokenCookieData(res, newAccessToken);
+
+      return { message: 'Refreshed access token' };
+    } catch (err) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }
