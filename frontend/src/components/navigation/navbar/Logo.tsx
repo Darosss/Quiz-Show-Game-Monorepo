@@ -4,18 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 const Logo = () => {
-  const [width, setWidth] = useState(0);
-
-  const updateWidth = () => {
-    const newWidth = window.innerWidth;
-    setWidth(newWidth);
-  };
-
-  useEffect(() => {
-    window.addEventListener("resize", updateWidth);
-    updateWidth();
-  }, []);
-
   const [showButton, setShowButton] = useState(false);
 
   const changeNavButton = () => {
@@ -31,18 +19,24 @@ const Logo = () => {
   }, []);
 
   return (
-    <>
-      <Link href="/" style={{ display: showButton ? "none" : "block" }}>
-        <Image
-          src="/images/logo.png"
-          alt="Logo"
-          width={width < 1024 ? "50" : "100"}
-          height={width < 1024 ? "45" : "74"}
-          style={{ position: "relative" }}
-          priority={true}
-        />
-      </Link>
-    </>
+    <Link
+      href="/"
+      style={{
+        aspectRatio: "1",
+        display: showButton ? "none" : "block",
+        width: "10vmin",
+        position: "relative",
+        height: "10vmin",
+      }}
+    >
+      <Image
+        src="/images/logo.png"
+        alt="Logo"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        fill
+        priority={true}
+      />
+    </Link>
   );
 };
 
