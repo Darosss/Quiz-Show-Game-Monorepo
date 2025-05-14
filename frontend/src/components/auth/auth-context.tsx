@@ -1,12 +1,9 @@
 "use client";
 
-import Cookies from "js-cookie";
 import { FC, createContext, useContext, useEffect, useState } from "react";
-import { ApiDataNotNullable, COOKIE_TOKEN_NAME } from "@/api/fetch";
+import { ApiDataNotNullable, ApiResponseBody } from "@/api/fetch";
 import { UseFetchReturnType, useFetch } from "@/hooks/use-fetch";
 import { RolesUser, UserTokenInfo } from "@/shared/index";
-import { usePathname, useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
 type ProfileResponseType = UserTokenInfo;
 type ApiUser = ApiDataNotNullable<ProfileResponseType>;
@@ -20,8 +17,9 @@ type ApiUserType = ApiStateType<ApiUser, ProfileResponseType>;
 
 type AuthContextType = {
   isLoggedIn: boolean;
-  setIsLoggedIn: (value: boolean) => void;
   apiUser: ApiUserType;
+  handleLogoutUser: () => void;
+  fetchUserData: () => Promise<ApiResponseBody<UserTokenInfo> | null>;
 };
 
 type AuthContextProps = {
@@ -42,49 +40,37 @@ const defaultApiUserData: ApiUser = {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider: FC<AuthContextProps> = ({ children }) => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const authCookie = Cookies.get(COOKIE_TOKEN_NAME);
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const {
     api: userApi,
     fetchData: fetchUserData,
     clearCache,
-  } = useFetch<ProfileResponseType>(
-    {
-      url: "auth/profile",
-      method: "GET",
-    },
-    { manual: true }
-  );
-  useEffect(() => {
-    setIsLoggedIn(!!authCookie);
-  }, [authCookie]);
+  } = useFetch<UserTokenInfo>({
+    url: "auth/profile",
+    method: "GET",
+  });
 
-  //TODO: DO i need that?
+  const handleLogoutUser = () => {
+    clearCache();
+    setIsLoggedIn(false);
+  };
+
   useEffect(() => {
-    if (!authCookie && !isLoggedIn && pathname !== "/auth/login") {
-      clearCache();
-      toast.info("Log in to visit that site");
-      router.replace("/auth/login");
-    } else if (authCookie) {
-      fetchUserData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clearCache, fetchUserData, isLoggedIn]);
+    setIsLoggedIn(!!userApi.responseData.data);
+  }, [userApi.responseData.data]);
 
   return (
     <AuthContext.Provider
       value={{
         isLoggedIn,
-        setIsLoggedIn,
         apiUser: {
           api: userApi.responseData.data
             ? (userApi.responseData as ApiUser)
             : defaultApiUserData,
           fetchData: fetchUserData,
         },
+        handleLogoutUser,
+        fetchUserData,
       }}
     >
       {children}

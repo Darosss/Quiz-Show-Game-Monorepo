@@ -15,7 +15,11 @@ import {
 } from 'src/shared';
 import { GamesService } from './games.service';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+  cors: {
+    origin: process.env.CORS_FRONTEND_ORIGIN,
+  },
+})
 export class GamesGateway {
   constructor(private readonly gameService: GamesService) {}
   @WebSocketServer()

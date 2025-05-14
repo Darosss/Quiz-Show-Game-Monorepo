@@ -1,18 +1,23 @@
-import Cookies from "js-cookie";
+import { fetchBackendApi } from "@/api/fetch";
 import { Button } from "@/components/common";
-import { COOKIE_TOKEN_NAME } from "@/api/fetch";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from "./auth-context";
 import { FC } from "react";
+import { useAuthContext } from "./auth-context";
 
 export const LogoutButton: FC = () => {
-  const { setIsLoggedIn } = useAuthContext();
+  const { handleLogoutUser } = useAuthContext();
   const router = useRouter();
-  const handleOnLogout = () => {
-    Cookies.remove(COOKIE_TOKEN_NAME);
-
-    setIsLoggedIn(false);
-    router.replace("/auth/login");
+  const handleOnLogout = async () => {
+    await fetchBackendApi<undefined>({
+      url: `auth/logout`,
+      method: "POST",
+      notification: { pendingText: "Trying to logout. Please wait" },
+    }).then((response) => {
+      const data = response.message;
+      if (!data) return;
+      handleLogoutUser();
+      router.replace("/auth/login");
+    });
   };
 
   return (

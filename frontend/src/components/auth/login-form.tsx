@@ -1,17 +1,14 @@
 "use client";
 
 import styles from "./login-form.module.scss";
-import Cookies from "js-cookie";
 import { FC, FormEvent } from "react";
-import { COOKIE_TOKEN_NAME, fetchBackendApi } from "@/api/fetch";
+import { fetchBackendApi } from "@/api/fetch";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/common";
-import { useAuthContext } from "@/components/auth";
+import { useAuthContext } from "./auth-context";
 
 type LoginResponse = {
-  email: string;
-  accessToken: string;
-  expirationTimeTimestamp: string;
+  expTimestamp: number;
 };
 
 type LoginFetchBody = {
@@ -21,8 +18,8 @@ type LoginFetchBody = {
 
 export const LoginForm: FC = () => {
   const router = useRouter();
+  const { fetchUserData } = useAuthContext();
 
-  const { setIsLoggedIn } = useAuthContext();
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -37,16 +34,11 @@ export const LoginForm: FC = () => {
       body: { username: `${username}`, password: `${password}` },
       notification: { pendingText: "Trying to log in. Please wait" },
     }).then((response) => {
-      const data = response?.data;
+      const data = response?.message;
       if (!data) return;
-      Cookies.set(COOKIE_TOKEN_NAME, data.accessToken, {
-        expires: new Date(data.expirationTimeTimestamp),
-        sameSite: "strict",
-      });
+      fetchUserData();
 
-      setIsLoggedIn(true);
-
-      router.push("/");
+      router.replace("/");
     });
   }
 

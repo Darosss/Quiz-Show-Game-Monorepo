@@ -1,8 +1,6 @@
-import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
 const BASE_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-export const COOKIE_TOKEN_NAME = "auth-token-quiz-show-backend";
 
 export type ApiResponseBody<DataType> = {
   data: DataType | null;
@@ -38,11 +36,8 @@ export const fetchBackendApi = async <ResponseT, BodyT = unknown>({
   body,
   notification,
 }: FetchBackendApiParams<BodyT>) => {
-  const authToken = Cookies.get(COOKIE_TOKEN_NAME);
-
   const headers = {
     "Content-Type": "application/json",
-    ...(authToken && { Authorization: `Bearer ${authToken}` }),
   };
 
   const toastId = notification
@@ -54,6 +49,7 @@ export const fetchBackendApi = async <ResponseT, BodyT = unknown>({
   return fetch(BASE_BACKEND_URL + url, {
     method: !method ? "GET" : method,
     headers,
+    credentials: "include",
     body: body ? JSON.stringify(body) : undefined,
   })
     .then(async (response) => {
