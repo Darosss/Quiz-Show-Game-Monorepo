@@ -34,6 +34,10 @@
       flex-grow: 1;
       justify-content: center;
 
+      .optionsWrapper {
+        display: flex;
+      }
+
       .editOptionsWrapper {
         text-align: center;
         position: absolute;
@@ -61,6 +65,10 @@
             margin: 0.2rem;
             flex-grow: 1;
           }
+        }
+
+        input {
+          padding: 0.5rem;
         }
       }
       .showOptions {

@@ -3,8 +3,8 @@ import { FetchingInfo } from "@/components/common";
 import styles from "./room-lobby.module.scss";
 import { useAuthContext } from "@/components/auth";
 import { ParticipantRoomActions } from "./participant-room-actions";
-import { OwnerRoomActions } from "./owner-room-actions";
-import { OwnerUserActions } from "./owner-user-actions";
+import { OwnerRoomActions } from "./owner/owner-room-actions";
+import { OwnerUserActions } from "./owner/owner-user-actions";
 import { useRoomLobbyContext } from "./room-lobby-context";
 import { StartGameLogic } from "./start-game-logic";
 
