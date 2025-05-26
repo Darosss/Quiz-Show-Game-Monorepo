@@ -2,6 +2,7 @@ import { fetchBackendApi } from "@/api/fetch";
 import { Button } from "@/components/common";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
+import styles from "./room-lobby.module.scss";
 import { useRoomLobbyContext } from "./room-lobby-context";
 import { useSocketEventsContext } from "@/socket/socket-events-context";
 import { ManagePlayerReadiness } from "@/shared/enums";
@@ -35,7 +36,7 @@ export const ParticipantRoomActions: FC = () => {
   };
 
   return (
-    <div>
+    <div className={styles.participantActionsWrapper}>
       <Button onClick={fetchLeaveRoom} defaultButtonType="danger">
         Leave room
       </Button>

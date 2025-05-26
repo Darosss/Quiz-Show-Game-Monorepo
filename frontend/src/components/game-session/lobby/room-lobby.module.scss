@@ -12,10 +12,28 @@
   }
 
   .roomActionsWrapper {
+    $common-wrapper-gap: 0.5rem;
     display: flex;
     justify-content: space-around;
 
+    button {
+      padding: 0.5rem;
+      width: 40%;
+    }
+
+    .participantActionsWrapper {
+      display: flex;
+      gap: $common-wrapper-gap;
+      flex-grow: 1;
+      justify-content: center;
+    }
+
     .ownerRoomActionsWrapper {
+      display: flex;
+      gap: $common-wrapper-gap;
+      flex-grow: 1;
+      justify-content: center;
+
       .editOptionsWrapper {
         text-align: center;
         position: absolute;
@@ -38,6 +56,7 @@
           left: 40%;
           bottom: 1%;
           display: flex;
+
           & > * {
             margin: 0.2rem;
             flex-grow: 1;
