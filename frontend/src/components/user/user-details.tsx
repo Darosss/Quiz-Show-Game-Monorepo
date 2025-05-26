@@ -9,8 +9,12 @@ export const UserDetails: FC = () => {
   } = useAuthContext();
   return (
     <div className={styles.userDetailsWrapper}>
-      <div>Username: {data.username}</div>
-      <div>Your roles: {data.roles.join(" | ")}</div>
+      {data.sub ? (
+        <>
+          <div>Username: {data.username}</div>
+          <div>Your roles: {data.roles.join(" | ")}</div>
+        </>
+      ) : null}
     </div>
   );
 };
