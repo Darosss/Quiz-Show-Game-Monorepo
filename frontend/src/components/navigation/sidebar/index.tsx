@@ -35,7 +35,7 @@ const Sidebar = ({
             />
           </svg>
         </Button>
-        <MenuLinks />
+        <MenuLinks onClickLink={toggle} />
       </div>
     </>
   );
