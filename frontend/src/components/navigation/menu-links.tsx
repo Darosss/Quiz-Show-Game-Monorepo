@@ -8,7 +8,11 @@ import { FC } from "react";
 import { useRoomLobbyContext } from "../game-session/lobby/room-lobby-context";
 import { RolesUser } from "@/shared/enums";
 
-export const MenuLinks: FC = () => {
+interface MenuLinksProps {
+  onClickLink?: () => void;
+}
+
+export const MenuLinks: FC<MenuLinksProps> = ({ onClickLink }) => {
   const {
     apiUser: {
       api: { data },
@@ -42,7 +46,7 @@ export const MenuLinks: FC = () => {
             key={href}
             className={`${pathname === href ? styles.active : ""}`}
           >
-            <Link href={href}>
+            <Link href={href} onClick={onClickLink}>
               <p>{name}</p>
             </Link>
           </li>
@@ -51,7 +55,7 @@ export const MenuLinks: FC = () => {
         <>
           {roomLobbyData.data ? (
             <li className={`${pathname === "/game" ? styles.active : ""}`}>
-              <Link href="/game">
+              <Link href="/game" onClick={onClickLink}>
                 <p>{`${roomLobbyData.data.game ? "Game" : "Lobby"}`}</p>
               </Link>
             </li>
