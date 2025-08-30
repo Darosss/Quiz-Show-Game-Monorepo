@@ -5,8 +5,8 @@ export enum RolesUser {
 }
 
 export enum ManagePlayerReadiness {
-  READY = "READY",
-  NOT_READY = "NOT READY",
+  READY = "Ready",
+  NOT_READY = "Not ready",
 }
 
 export enum ManagePlayersInRoom {
@@ -15,12 +15,12 @@ export enum ManagePlayersInRoom {
 }
 
 export enum CurrentTimerGameStage {
-  GAME_STARTING = "GAME STARTING",
-  QUESTION_RESULT = "QUESTION RESULT",
-  NEW_QUESTION = "NEW QUESTION",
-  ANSWER_TIME = "ANSWER TIME",
-  QUESTION = "QUESTION",
-  GAME_ENDING = "GAME ENDING",
+  GAME_STARTING = "Game starting",
+  QUESTION_RESULT = "Question result",
+  NEW_QUESTION = "New question",
+  ANSWER_TIME = "Answer time",
+  QUESTION = "Question",
+  GAME_ENDING = "Game is ending",
 }
 
 export enum PossibleLanguages {
